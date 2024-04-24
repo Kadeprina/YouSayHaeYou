@@ -162,7 +162,7 @@ def search_online(input_text):
 
 
 def search_hotel(input_text):
-    search = DuckDuckGoSearchRun().run(f"site:booking.com {input_text}")
+    search = DuckDuckGoSearchRun().run(f"site:agoda.com {input_text}")
     return search
 
 
@@ -198,7 +198,7 @@ def agent():
             description="useful for when you need to answer trip plan questions"
         ),
         Tool(
-            name="Search booking",
+            name="Search hotel",
             func=search_hotel,
             description="useful for when you need to answer hotel questions"
         ),
