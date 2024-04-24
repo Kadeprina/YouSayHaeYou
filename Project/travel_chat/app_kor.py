@@ -35,7 +35,7 @@ load_dotenv()
 url = 'https://places.googleapis.com/v1/places:searchText'
 
 st.set_page_config(page_title="travel assistant", layout="wide", page_icon="🛫", menu_items={
-        'About': "# 이 app은 여행을 도와줄 수 있는 app입니다!"
+        'About': "이 app은 여러분들의 여행을 도와줄 거에요!"
     })
 
 # st.write(os.getcwd())
