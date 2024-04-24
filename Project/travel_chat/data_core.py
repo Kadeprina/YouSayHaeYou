@@ -30,8 +30,8 @@ def save_chat_message(uid):
     chat_data = {
         "user": uid,
         "user_name": st.session_state["name"],
-        "message": st.session_state["messages"].payload,
-        "actor": st.session_state["messages"].actor,
+        "message": st.session_state["messages"]["payload"],
+        "actor": st.session_state["messages"]["actor"],
         "timestamp": timestamp
     }
     db.collection("chats").add(chat_data)
