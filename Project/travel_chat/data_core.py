@@ -1,4 +1,5 @@
 from firebase_admin import firestore, auth
+from google.cloud.firestore_v1 import aggregation
 from google.cloud.firestore_v1.base_query import FieldFilter
 import streamlit as st
 from datetime import datetime
@@ -51,10 +52,15 @@ def save_chat_message(uid):
 
 
 def delete_chat_message(uid):
-    docs = db.collection("chats").where(filter=FieldFilter("user", "==", uid)).stream()
-    for doc in docs:
-        st.write(doc)
-        doc.reference.delete()
+    collection_ref = db.collection("chats")
+    query = collection_ref.where(filter=FieldFilter("user_name", "==", st.session_state["name"]))
+    aggregate_query = aggregation.AggregationQuery(query)
+
+    # `alias` to provides a key for accessing the aggregate query results
+    aggregate_query.count(alias="all")
+    count = aggregate_query.get()
+    for i in range(count[0].value):
+        db.collection("chats").document(st.session_state["name"] + str(i)).delete()
 
 
 def save_button(email, uid):
