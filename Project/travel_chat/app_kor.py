@@ -420,7 +420,7 @@ def main():
             for msg in st.session_state[MESSAGES]:
                 st.chat_message(msg.actor).write(msg.payload)
 
-            # st.write(st.session_state)
+            st.write(st.session_state)
             data_core.main()
 
             # Prompt
