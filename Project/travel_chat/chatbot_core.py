@@ -230,7 +230,8 @@ def agent():
     )
     output_parser = CustomOutputParser()
     # memory = ConversationBufferWindowMemory(k=2)
-    llm = ChatOpenAI(temperature=0.7, model="gpt-3.5-turbo")
+    # llm = ChatOpenAI(temperature=0.7, model="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.7, model="gpt-4.5-turbo")
     # llm = ChatGoogleGenerativeAI(model="gemini-pro")
     # LLM chain consisting of the LLM and a prompt
     llm_chain = LLMChain(llm=llm, prompt=prompt)
