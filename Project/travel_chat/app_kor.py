@@ -16,6 +16,7 @@ from streamlit_folium import folium_static
 import chatbot_core
 import route_core
 import auth_core
+import data_core
 
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -24,6 +25,8 @@ from langchain.vectorstores import FAISS
 from langchain.document_loaders import DataFrameLoader
 from langchain.agents import tool
 import datetime
+
+from firebase_admin import auth
 
 load_dotenv()
 
@@ -394,6 +397,15 @@ def main():
                 actor: str
                 payload: str
 
+            # 사용자 입력 받기
+            user = None
+            try:
+                user = auth.get_user_by_email(st.session_state["username"])
+            except auth.UserNotFoundError:
+                st.error("사용자를 찾을 수 없습니다.")
+
+            uid = user.uid
+
             # llm = ChatOpenAI(openai_api_key=os.environ["OPENAI_API_KEY"], model_name='gpt-3.5-turbo', temperature=0)
 
             USER = "user"
@@ -407,6 +419,8 @@ def main():
             msg: Message
             for msg in st.session_state[MESSAGES]:
                 st.chat_message(msg.actor).write(msg.payload)
+
+            data_core.main()
 
             # Prompt
             query: str = st.chat_input("이곳에 질문을 입력하세요.")
