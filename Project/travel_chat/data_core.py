@@ -1,4 +1,5 @@
 from firebase_admin import firestore, auth
+from google.cloud.firestore_v1.base_query import FieldFilter
 import streamlit as st
 from datetime import datetime
 
@@ -50,7 +51,7 @@ def save_chat_message(uid):
 
 
 def delete_chat_message(uid):
-    docs = db.collection("chats").where("user", "==", uid).stream()
+    docs = db.collection("chats").where(filter=FieldFilter("user", "==", uid)).stream()
     for doc in docs:
         doc.reference.delete()
 
