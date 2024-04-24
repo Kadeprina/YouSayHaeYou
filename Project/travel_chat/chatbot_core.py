@@ -22,6 +22,7 @@ import chainlit as cl
 import streamlit as st
 
 from chatbot_add_agent import all_in_1_agent
+from datetime import datetime
 
 # os.environ["OPENAI_API_KEY"] = "<openai-key>"
 # os.environ["GOOGLE_API_KEY"]
@@ -216,6 +217,11 @@ def agent():
             name="Search experience and poi",
             func=lambda x: all_in_1_agent({"input": x}),
             description="useful for when you need to answer travel experience questions or get the keyword about travel information"
+        ),
+        Tool(
+            name="Search datetime",
+            func=lambda x: datetime.now().isoformat(),
+            description="useful for when you need to know the current datetime",
         )
     ]
 
