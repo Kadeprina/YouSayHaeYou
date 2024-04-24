@@ -2,6 +2,7 @@ from firebase_admin import firestore, auth
 from google.cloud.firestore_v1 import aggregation
 from google.cloud.firestore_v1.base_query import FieldFilter
 import streamlit as st
+import re
 from datetime import datetime
 
 db = firestore.client()
@@ -57,8 +58,10 @@ def delete_chat_message(uid):
     aggregate_query = aggregation.AggregationQuery(query)
 
     aggregate_query.count(alias="all")
-    count = aggregate_query.get()
-    st.write(count[0])
+    counts = aggregate_query.get()
+    count = counts[0]
+    count = re.search(r'value=(\d+)', str(count)).group(1)
+    print(count)
 
     # for i in range(count[0].value):
     #     db.collection("chats").document(st.session_state["name"] + str(i)).delete()
