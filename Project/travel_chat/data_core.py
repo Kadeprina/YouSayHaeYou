@@ -30,21 +30,22 @@ def save_chat_message(message, uid):
     chat_data = {
         "user": uid,
         "user_name": st.session_state["name"],
-        "message": message,
+        "message": message.payload,
+        "actor": message.actor,
         "timestamp": timestamp
     }
     db.collection("chats").add(chat_data)
 
 
-def imsi():
-    st.title("과거 채팅 기록 불러오기")
-
-    chat_history = load_chat_history()
-
-    # 과거 채팅 기록 출력
-    st.write("과거 채팅 기록:")
-    for chat in chat_history:
-        st.write(f"{chat['timestamp']} - {chat['user']}: {chat['message']}")
+# def imsi():
+#     st.title("과거 채팅 기록 불러오기")
+#
+#     chat_history = load_chat_history()
+#
+#     # 과거 채팅 기록 출력
+#     st.write("과거 채팅 기록:")
+#     for chat in chat_history:
+#         st.write(f"{chat['timestamp']} - {chat['user']}: {chat['message']}")
 
 
 def delete_chat_message(uid):
