@@ -26,14 +26,12 @@ def load_chat_message(uid):
 
 
 def save_chat_message(uid):
-    message = st.session_state.get("message")
-    st.write(message)
     timestamp = datetime.now()
     chat_data = {
         "user": uid,
         "user_name": st.session_state["name"],
-        "message": message.payload,
-        "actor": message.actor,
+        "message": st.session_state["messages"].payload,
+        "actor": st.session_state["messages"].actor,
         "timestamp": timestamp
     }
     db.collection("chats").add(chat_data)
