@@ -278,7 +278,7 @@ def main():
                     st.text(f"거리는 {distance}km입니다.")
                     st.text(f"예상 소요 시간은 {duration}에요!")
                 else:
-                    ddf, route1, distance, duration, start_point = route_core.s_to_d(start, dest, sel)
+                    ddf, route1, distance, duration = route_core.s_to_d(start, dest, sel)
                     m1 = route1.plot_route()
                     folium_static(m1)
                     st.text(f"거리는 {distance}km입니다.")
