@@ -1,7 +1,8 @@
 import json
 import requests
 from langchain.tools import BaseTool
-from langchain.agents import AgentType
+from langchain.agents import AgentType, initialize_agent, Tool
+from langchain.chat_models import ChatOpenAI
 
 from typing import Optional, Type
 from pydantic import BaseModel, Field
@@ -40,7 +41,6 @@ class TravelTicketTool(BaseTool):
 def get_ticket(fromCity, toCity, startDate, backDate, numOfAdult):
     api_url = "https://nextjs-chatgpt-plugin-starter.vercel.app/api/get-ticket"
     headers = {'Content-Type': 'application/json'}
-
 
     data = {
         "fromCity": fromCity,
@@ -82,7 +82,8 @@ class ProductTool(BaseTool):
     name = "search_product"
     description = "Get the product information"
 
-    def _run(self, query_string: str, max_price: float, min_price: float, special_price: bool, point: bool, line_badge: bool, line_pay: bool, color: list):
+    def _run(self, query_string: str, max_price: float, min_price: float, special_price: bool, point: bool,
+             line_badge: bool, line_pay: bool, color: list):
         product_results = get_product(query_string,
                                       max_price,
                                       min_price,
@@ -93,7 +94,8 @@ class ProductTool(BaseTool):
                                       color)
         return product_results
 
-    def _arun(self, query_string: str, max_price: float, min_price: float, special_price: bool, point: bool, line_badge: bool, line_pay: bool, color: list):
+    def _arun(self, query_string: str, max_price: float, min_price: float, special_price: bool, point: bool,
+              line_badge: bool, line_pay: bool, color: list):
         raise NotImplementedError("This tool does not support async")
 
     args_schema: Optional[Type[BaseModel]] = ProductInput
@@ -234,3 +236,13 @@ def get_experience(keyword):
         return None
 
 
+def all_in_1_agent(input):
+    model = ChatOpenAI(model="gpt-4-turbo")
+    tools = [TravelPOITool(), TravelTicketTool(), TravelExpTool(), ProductTool()]
+    open_ai_agent = initialize_agent(tools,
+                                     model,
+                                     agent=AgentType.OPENAI_FUNCTIONS,
+                                     verbose=True)
+    tool_result = open_ai_agent.run(input)
+
+    return tool_result
