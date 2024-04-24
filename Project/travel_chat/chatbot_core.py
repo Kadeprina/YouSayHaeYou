@@ -21,6 +21,8 @@ import os
 import chainlit as cl
 import streamlit as st
 
+from chatbot_add_agent import TravelPOITool, TravelTicketTool, TravelExpTool, ProductTool
+
 # os.environ["OPENAI_API_KEY"] = "<openai-key>"
 # os.environ["GOOGLE_API_KEY"]
 os.environ["AMADEUS_CLIENT_ID"] = st.secrets["AMADEUS_CLIENT_ID"]
@@ -209,10 +211,12 @@ def agent():
             name="Search flight and airport",
             func=lambda x: agent_executor2.invoke({"input": x}),
             description="useful for when you need to answer flight questions and airport questions"
-        )
+        ),
+        TravelExpTool(),
+        TravelTicketTool(),
+        TravelPOITool(),
+        ProductTool()
     ]
-
-
 
     prompt = CustomPromptTemplate(
         template=template,
