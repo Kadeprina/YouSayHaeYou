@@ -239,7 +239,8 @@ def agent():
     prompt_for_amadeus2 = """"
     Here is instructions to use "tool":
     departureDateTimeEarliest" and "departureDateTimeEarliest" MUST be the same date.
-    If you want to find flights for a certain period of time, you have to use the "tool" N times for that period.
+    You can only find one day's worth at a time.
+    If you want to find flights for a multiple days, you have to use the "tool" N times for that period.
     If you're trying to search for round-trip flights, call this function for the outbound flight first, and then call again for the return flight.
     The currency must be converted to Korean Won before Final Answer."""
     agent2 = create_react_agent(
