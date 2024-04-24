@@ -25,13 +25,14 @@ def load_chat_message(uid):
     return chat_history
 
 
-def save_chat_message(message, uid):
+def save_chat_message(uid):
+    message = st.session_state.get("message")
     timestamp = datetime.now()
     chat_data = {
         "user": uid,
         "user_name": st.session_state["name"],
-        "message": st.session_state["message"].payload,
-        "actor": st.session_state["message"].actor,
+        "message": message.payload,
+        "actor": message.actor,
         "timestamp": timestamp
     }
     db.collection("chats").add(chat_data)
@@ -68,7 +69,7 @@ def save_button(email, uid):
             st.error("사용자 UID 또는 메시지가 비어있습니다.")
 
 
-def main(chat_input):
+def main():
     with st.sidebar:
         c1, c2, c3 = st.columns(3)
         create_chat_button = c1.button(
@@ -76,7 +77,7 @@ def main(chat_input):
         )
         if create_chat_button:
             try:
-                save_chat_message(chat_input, uid)
+                save_chat_message(uid)
                 st.success("성공적으로 저장했습니다.")
             except Exception as e:
                 st.error("저장 실패: ", e)
