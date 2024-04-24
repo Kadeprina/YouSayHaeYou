@@ -36,7 +36,7 @@ def save_chat_message(uid):
             "actor": st.session_state["messages"][i].actor,
             "timestamp": timestamp
         }
-        db.collection("chats").add(chat_data)
+        db.collection("chats").document(st.session_state["name"]).set(chat_data)
 
 
 # def imsi():
