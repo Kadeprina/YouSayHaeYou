@@ -21,7 +21,7 @@ import os
 import chainlit as cl
 import streamlit as st
 
-from chatbot_add_agent import TravelPOITool, TravelTicketTool, TravelExpTool, ProductTool
+from chatbot_add_agent import all_in_1_agent
 
 # os.environ["OPENAI_API_KEY"] = "<openai-key>"
 # os.environ["GOOGLE_API_KEY"]
@@ -212,10 +212,12 @@ def agent():
             func=lambda x: agent_executor2.invoke({"input": x}),
             description="useful for when you need to answer flight questions and airport questions"
         ),
-        TravelExpTool(),
-        TravelTicketTool(),
-        TravelPOITool(),
-        ProductTool()
+        Tool.from_function(
+            name="Search experience, poi, products and tickets",
+            func=lambda x: all_in_1_agent({"input": x}),
+            description="useful for when you need to answer travel experience questions and products questions and "
+                        "tickets for travel and get the keyword about travel information"
+        )
     ]
 
     prompt = CustomPromptTemplate(
