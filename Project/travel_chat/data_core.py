@@ -27,6 +27,7 @@ def load_chat_message(uid):
 
 def save_chat_message(uid):
     message = st.session_state.get("message")
+    st.write(message)
     timestamp = datetime.now()
     chat_data = {
         "user": uid,
