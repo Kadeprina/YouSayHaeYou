@@ -61,7 +61,7 @@ def delete_chat_message(uid):
     counts = aggregate_query.get()
     count = counts[0]
     count = re.search(r'value=(\d+)', str(count)).group(1)
-    print(count)
+    st.write(count)
 
     # for i in range(count[0].value):
     #     db.collection("chats").document(st.session_state["name"] + str(i)).delete()
