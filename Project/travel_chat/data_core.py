@@ -54,12 +54,11 @@ def save_chat_message(uid):
 def delete_chat_message(uid):
     collection_ref = db.collection("chats")
     query = collection_ref.where(filter=FieldFilter("user_name", "==", st.session_state["name"]))
+    st.write(query)
     aggregate_query = aggregation.AggregationQuery(query)
 
-    # `alias` to provides a key for accessing the aggregate query results
     aggregate_query.count(alias="all")
     count = aggregate_query.get()
-    st.write(count[0].value)
     for i in range(count[0].value):
         db.collection("chats").document(st.session_state["name"] + str(i)).delete()
 
