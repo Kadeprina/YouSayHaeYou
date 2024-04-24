@@ -15,7 +15,7 @@ from streamlit_folium import folium_static
 
 import chatbot_core
 import route_core
-import auth_core
+import auth_core1
 
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -34,12 +34,13 @@ load_dotenv()
 # openai_api_key = os.getenv("MY_OPENAI_KEY")
 url = 'https://places.googleapis.com/v1/places:searchText'
 
-
+st.set_page_config(page_title="travel assistant", layout="wide", page_icon="🛫", menu_items={
+        'About': "# 이 app은 여행을 도와줄 수 있는 app입니다!"
+    })
 
 # st.write(os.getcwd())
 with st.sidebar:
-    auth_core.main()
-
+    auth_core1.main()
 
 
 # if not api_key:
