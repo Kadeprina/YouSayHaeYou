@@ -17,7 +17,7 @@ uid = user.uid
 def load_chat_message(uid):
     chat_history = []
 
-    chats_ref = db.collection("chats").where("uid", "==", uid).order_by("timestamp",
+    chats_ref = db.collection("chats").where("user", "==", uid).order_by("timestamp",
                                                                         direction=firestore.Query.DESCENDING).stream()
     for chat in chats_ref:
         chat_data = chat.to_dict()
@@ -50,7 +50,7 @@ def save_chat_message(uid):
 
 
 def delete_chat_message(uid):
-    docs = db.collection("chats").where("uid", "==", uid).stream()
+    docs = db.collection("chats").where("user", "==", uid).stream()
     for doc in docs:
         doc.reference.delete()
 
