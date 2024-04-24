@@ -420,7 +420,7 @@ def main():
             for msg in st.session_state[MESSAGES]:
                 st.chat_message(msg.actor).write(msg.payload)
 
-            data_core.main()
+            data_core.main(st.session_state[MESSAGES])
 
             # Prompt
             query: str = st.chat_input("이곳에 질문을 입력하세요.")
