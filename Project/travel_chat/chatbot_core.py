@@ -254,7 +254,7 @@ def agent():
         tools=tool_amadeus,
         verbose=True,
         handle_parsing_errors="Check your output and make sure it conforms, use the Action/Action Input syntax",
-        max_iterations=5
+        max_iterations=10
     )
 
     tool_names = [tool.name for tool in tools]
