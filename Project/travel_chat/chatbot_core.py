@@ -213,10 +213,9 @@ def agent():
             description="useful for when you need to answer flight questions and airport questions"
         ),
         Tool.from_function(
-            name="Search experience, poi and products",
+            name="Search experience and poi",
             func=lambda x: all_in_1_agent({"input": x}),
-            description="useful for when you need to answer travel experience questions or products questions or "
-                        "get the keyword about travel information"
+            description="useful for when you need to answer travel experience questions or get the keyword about travel information"
         )
     ]
 
