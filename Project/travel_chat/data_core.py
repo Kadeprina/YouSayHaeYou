@@ -27,14 +27,14 @@ def load_chat_message(uid):
 
 def save_chat_message(uid):
     timestamp = datetime.now()
-    chat_data = {
-        "user": uid,
-        "user_name": st.session_state["name"],
-        "message": st.session_state["messages"]["payload"],
-        "actor": st.session_state["messages"]["actor"],
-        "timestamp": timestamp
-    }
-    db.collection("chats").add(chat_data)
+    for i in range(len(st.session_state["messages"])):
+        chat_data = {
+            "user": uid,
+            "user_name": st.session_state["name"],
+            "message": st.session_state["messages"][i],
+            "timestamp": timestamp
+        }
+        db.collection("chats").add(chat_data)
 
 
 # def imsi():
