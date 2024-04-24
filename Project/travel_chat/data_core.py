@@ -52,8 +52,8 @@ def save_chat_message(uid):
 
 def delete_chat_message(uid):
     docs = db.collection("chats").where(filter=FieldFilter("user", "==", uid)).stream()
-    st.write(docs)
     for doc in docs:
+        st.write(doc)
         doc.reference.delete()
 
 
