@@ -149,6 +149,7 @@ def main(memory):
                 for i in range(len(mem_list_input)):
                     memory.save_context(mem_list_input[i], mem_list_output[i])
                 memory.load_memory_variables({})
+                st.rerun()
                 st.success("성공적으로 불러왔습니다.")
             except Exception as e:
                 st.error("불러오기 실패: ", e)
