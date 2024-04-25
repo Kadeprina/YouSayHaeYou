@@ -17,14 +17,22 @@ def load_chat_message():
         st.error("사용자를 찾을 수 없습니다.")
 
     uid = user.uid
-    
+
     chat_history = []
 
     chats_ref = db.collection("chats").where("user", "==", uid).get()
     sorted_docs = sorted(chats_ref, key=lambda doc: doc.id)
 
+    serv = []
     for doc in sorted_docs:
-        st.write(doc.id, doc.to_dict())
+        doc_data = doc.to_dict()
+        extracted_data = {
+            "actor": doc_data.get("actor"),
+            "message": doc_data.get("message")
+        }
+        serv.append(extracted_data)
+        
+    st.write(serv)
 
     # for chat in chats_ref:
     #     chat_data = chat.to_dict()
@@ -41,7 +49,7 @@ def save_chat_message():
         st.error("사용자를 찾을 수 없습니다.")
 
     uid = user.uid
-    
+
     timestamp = datetime.now()
     for i in range(len(st.session_state["messages"])):
         chat_data = {
