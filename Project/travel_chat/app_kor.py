@@ -420,8 +420,6 @@ def main():
             for msg in st.session_state[MESSAGES]:
                 st.chat_message(msg.actor).write(msg.payload)
 
-            st.write(st.session_state)
-            data_core.main()
 
             # Prompt
             query: str = st.chat_input("이곳에 질문을 입력하세요.")
@@ -505,7 +503,9 @@ def main():
             # ]
             # agent = initialize_agent(tools=tools, llm=llm, agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
 
-            agent_executor = chatbot_core.agent()
+            agent_executor, memory = chatbot_core.agent()
+
+            data_core.main(memory)
 
             if query:
                 st.session_state[MESSAGES].append(Message(actor=USER, payload=str(query)))
