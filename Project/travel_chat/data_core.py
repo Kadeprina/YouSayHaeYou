@@ -160,6 +160,7 @@ def main(memory):
             try:
                 delete_chat_message(memory)
                 st.session_state["messages"] = [Message(actor="ai", payload="안녕하세요! 어떤 도움이 필요하신가요?")]
+                st.rerun()
                 st.success("성공적으로 삭제되었습니다.")
             except Exception as e:
                 st.error("삭제 실패: ", e)
