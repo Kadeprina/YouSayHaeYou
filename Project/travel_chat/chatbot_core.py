@@ -21,7 +21,7 @@ import os
 import chainlit as cl
 import streamlit as st
 
-from chatbot_add_agent import all_in_1_agent
+from chatbot_add_agent import all_in_1_agent, sms_or_email
 from datetime import datetime
 
 # os.environ["OPENAI_API_KEY"] = "<openai-key>"
@@ -222,7 +222,12 @@ def agent():
             name="Search datetime",
             func=lambda x: datetime.now().isoformat(),
             description="useful for when you need to know the current datetime",
-        )
+        ),
+        Tool(
+            name="Send email",
+            func=lambda x: sms_or_email().invoke({"input": x}),
+            description="Send Email via Infobip. If you need to send email, use Send email",
+        ),
     ]
 
     prompt = CustomPromptTemplate(
