@@ -15,8 +15,7 @@ from streamlit_folium import folium_static
 
 import chatbot_core
 import route_core
-import auth_core
-import data_core
+import auth_core1
 
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -43,13 +42,15 @@ st.set_page_config(page_title="travel assistant", layout="wide", page_icon="🛫
 
 # st.write(os.getcwd())
 with st.sidebar:
-    auth_core.main()
+    auth_core1.main()
 
 
 # if not api_key:
 #     raise ValueError("API_KEY not found in environment variables. Please set it in the .env file.")
 # if not openai_api_key:
 #     raise ValueError("MY_OPENAI_KEY not found in environment variables. Please set it in the .env file.")
+
+import data_core
 
 def get_current_temperature(latitude: float, longitude: float) -> dict:
     """Fetch current temperature for given coordinates."""
