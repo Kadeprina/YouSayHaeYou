@@ -11,6 +11,9 @@ from pydantic import BaseModel, Field
 
 from langchain_community.utilities.infobip import InfobipAPIWrapper
 
+import os
+import streamlit as st
+
 
 class TravelPOIInput(BaseModel):
     """Get the keyword about travel information."""
@@ -108,6 +111,8 @@ def all_in_1_agent(input):
 
 
 def sms_or_email():
+    os.environ["INFOBIP_API_KEY"] = st.secrets["INFOBIP_API_KEY"]
+    os.environ["INFOBIP_BASE_URL"] = st.secrets["INFOBIP_BASE_URL"]
     instructions = "You are the messenger. Convey exactly what the user wants to convey."
     base_prompt = hub.pull("langchain-ai/openai-functions-template")
     prompt = base_prompt.partial(instructions=instructions)
