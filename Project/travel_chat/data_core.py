@@ -51,7 +51,9 @@ def load_chat_message():
             st.session_state["messages"].append(Message(actor=serv1[index + 1], payload=serv2[index + 1]))
 
     mem_list = []
+    st.write(serv2)
     serv2 = serv2.pop(0)
+    st.write(serv2)
     for i in range(cc):
         index = i * 2
         input_data = serv2[index]
