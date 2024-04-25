@@ -20,12 +20,16 @@ uid = user.uid
 def load_chat_message(uid):
     chat_history = []
 
-    chats_ref = db.collection("chats").where("user", "==", uid).order_by("timestamp",
-                                                                        direction=firestore.Query.DESCENDING).stream()
-    for chat in chats_ref:
-        chat_data = chat.to_dict()
-        chat_history.append(chat_data)
-    return chat_history
+    chats_ref = db.collection("chats").where("user", "==", uid).get()
+    sorted_docs = sorted(chats_ref, key=lambda doc: doc.id)
+
+    for doc in sorted_docs:
+        st.write(doc.id, doc.to_dict())
+
+    # for chat in chats_ref:
+    #     chat_data = chat.to_dict()
+    #     chat_history.append(chat_data)
+    # return chat_history
 
 
 def save_chat_message(uid):
@@ -52,7 +56,7 @@ def save_chat_message(uid):
 #         st.write(f"{chat['timestamp']} - {chat['user']}: {chat['message']}")
 
 
-def delete_chat_message(uid):
+def delete_chat_message():
     collection_ref = db.collection("chats")
     query = collection_ref.where(filter=FieldFilter("user_name", "==", st.session_state["name"]))
     aggregate_query = aggregation.AggregationQuery(query)
@@ -66,18 +70,18 @@ def delete_chat_message(uid):
         db.collection("chats").document(st.session_state["name"] + str(i)).delete()
 
 
-def save_button(email, uid):
-    st.title("채팅 기록 저장 및 불러오기")
-
-    message = st.text_area("메시지를 입력하세요:")
-
-    # '전송' 버튼 클릭 시 채팅 저장
-    if st.button("저장"):
-        if uid.strip() != "" and message.strip() != "":
-            save_chat_message(uid, message)
-            st.success("채팅이 저장되었습니다!")
-        else:
-            st.error("사용자 UID 또는 메시지가 비어있습니다.")
+# def save_button(email, uid):
+#     st.title("채팅 기록 저장 및 불러오기")
+#
+#     message = st.text_area("메시지를 입력하세요:")
+#
+#     # '전송' 버튼 클릭 시 채팅 저장
+#     if st.button("저장"):
+#         if uid.strip() != "" and message.strip() != "":
+#             save_chat_message(uid, message)
+#             st.success("채팅이 저장되었습니다!")
+#         else:
+#             st.error("사용자 UID 또는 메시지가 비어있습니다.")
 
 
 def main():
@@ -99,7 +103,7 @@ def main():
         if load_chat_button:
             try:
                 chat_history = load_chat_message(uid)
-                st.session_state.messages = chat_history
+                # st.session_state.messages = chat_history
                 st.success("성공적으로 불러왔습니다.")
             except Exception as e:
                 st.error("불러오기 실패: ", e)
@@ -109,7 +113,7 @@ def main():
         )
         if delete_chat_button:
             try:
-                delete_chat_message(uid)
+                delete_chat_message()
                 st.success("성공적으로 삭제되었습니다.")
             except Exception as e:
                 st.error("삭제 실패: ", e)
