@@ -15,7 +15,9 @@ from streamlit_folium import folium_static
 
 import chatbot_core
 import route_core
+from firebase_admin import auth
 import auth_core
+import data_core
 
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -24,8 +26,6 @@ from langchain.vectorstores import FAISS
 from langchain.document_loaders import DataFrameLoader
 from langchain.agents import tool
 import datetime
-
-from firebase_admin import auth
 
 load_dotenv()
 
@@ -49,8 +49,6 @@ with st.sidebar:
 #     raise ValueError("API_KEY not found in environment variables. Please set it in the .env file.")
 # if not openai_api_key:
 #     raise ValueError("MY_OPENAI_KEY not found in environment variables. Please set it in the .env file.")
-
-import data_core
 
 def get_current_temperature(latitude: float, longitude: float) -> dict:
     """Fetch current temperature for given coordinates."""
