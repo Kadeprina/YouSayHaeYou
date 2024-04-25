@@ -505,7 +505,6 @@ def main():
             agent_executor, memory = chatbot_core.agent()
 
             data_core.main(memory)
-            st.write(memory.buffer)
 
             if query:
                 st.session_state[MESSAGES].append(Message(actor=USER, payload=str(query)))
