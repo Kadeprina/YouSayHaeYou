@@ -42,7 +42,12 @@ def load_chat_message():
 
     [[serv1.append(item["actor"]), serv2.append(item["message"])] for item in serv]
 
-    for i in range(len(serv1)):
+    if len(serv1)//2 == 0:
+        cc = len(serv1)//2
+    else:
+        cc = (len(serv1)//2) + 1
+
+    for i in range(cc):
         st.session_state["messages"].append(Message(actor=serv1[i], payload=serv2[i]))
         st.session_state["messages"].append(Message(actor=serv1[i + 1], payload=serv2[i + 1]))
 
