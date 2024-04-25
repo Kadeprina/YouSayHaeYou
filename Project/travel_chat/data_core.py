@@ -6,6 +6,7 @@ import streamlit as st
 import re
 from datetime import datetime
 
+
 db = firestore.client()
 
 
@@ -48,6 +49,17 @@ def load_chat_message():
         st.session_state["messages"].append(Message(actor=serv1[index], payload=serv2[index]))
         if index + 1 < len(serv1):
             st.session_state["messages"].append(Message(actor=serv1[index + 1], payload=serv2[index + 1]))
+
+    mem_list = []
+    for i in range(cc):
+        index = i * 2
+        input_data = {"input": serv1[index], "output": serv2[index]}
+        mem_list.append(input_data)
+        if index + 1 < len(serv1):
+            input_data = {"input": serv1[index + 1], "output": serv2[index + 1]}
+            mem_list.append(input_data)
+            
+    st.write(mem_list)
 
 
     # for chat in chats_ref:
@@ -117,7 +129,7 @@ def delete_chat_message():
 #             st.error("사용자 UID 또는 메시지가 비어있습니다.")
 
 
-def main():
+def main(memory):
     with st.sidebar:
         c1, c2, c3 = st.columns(3)
         create_chat_button = c1.button(
@@ -135,8 +147,8 @@ def main():
         )
         if load_chat_button:
             try:
-                chat_history = load_chat_message()
-                # st.session_state.messages = chat_history
+                load_chat_message()
+                # memory.save_context
                 st.success("성공적으로 불러왔습니다.")
             except Exception as e:
                 st.error("불러오기 실패: ", e)
