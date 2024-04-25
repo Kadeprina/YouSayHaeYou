@@ -284,7 +284,7 @@ def agent():
         allowed_tools=tool_names
     )
     agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, memory=memory,
-                                                        handle_parsing_errors="Check your output and make sure it conforms, use the Action/Action Input syntax",
+                                                        handle_parsing_errors="Check your output and make sure it conforms, use the Action/Action Input syntax, If the current output is the final answer, add 'Final Answer:' at the beginning.",
                                                         max_iterations=20)
 
     return agent_executor, memory
