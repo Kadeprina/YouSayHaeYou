@@ -144,7 +144,8 @@ def main(memory):
             try:
                 st.write(memory.buffer)
                 mem_list_input, mem_list_output = load_chat_message()
-                memory.save_context(mem_list_input, mem_list_output)
+                for i in range(len(mem_list_input)):
+                    memory.save_context(mem_list_input[i], mem_list_output[i])
                 memory.load_memory_variables({})
                 st.write(memory.buffer)
                 st.success("성공적으로 불러왔습니다.")
