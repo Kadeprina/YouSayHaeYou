@@ -55,7 +55,7 @@ def load_chat_message():
 
     for i in range(cc):
         index = i * 2
-        input_data = serv2[index]
+        input_data = serv2[index] if index < len(serv2) else ""
         output_data = serv2[index + 1] if index + 1 < len(serv2) else ""
         mem_list.append(({"input": input_data}, {"output": output_data}))
 
