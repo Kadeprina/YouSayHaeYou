@@ -50,7 +50,7 @@ def load_chat_message():
         if index + 1 < len(serv1):
             st.session_state["messages"].append(Message(actor=serv1[index + 1], payload=serv2[index + 1]))
 
-    mem_list_input, mem_list_output = []
+    mem_list_input, mem_list_output = [], []
     serv2.pop(0)
 
     for i in range(cc):
