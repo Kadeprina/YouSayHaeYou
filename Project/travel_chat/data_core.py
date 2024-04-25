@@ -31,8 +31,10 @@ def load_chat_message():
             "message": doc_data.get("message")
         }
         serv.append(extracted_data)
-        
-    st.write(serv)
+
+    list_2d = [[item["actor"], item["message"]] for item in serv]
+
+    st.write(list_2d)
 
     # for chat in chats_ref:
     #     chat_data = chat.to_dict()
