@@ -177,7 +177,7 @@ def search_general(input_text):
     return search
 
 
-memory = ConversationBufferWindowMemory(k=2)
+memory = ConversationBufferWindowMemory(k=15)
 
 
 def _handle_error(error) -> str:
@@ -282,4 +282,4 @@ def agent():
                                                         handle_parsing_errors="Check your output and make sure it conforms, use the Action/Action Input syntax",
                                                         max_iterations=20)
 
-    return agent_executor
+    return agent_executor, memory
