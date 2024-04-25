@@ -59,13 +59,7 @@ def load_chat_message():
         output_data = serv2[index + 1] if index + 1 < len(serv2) else ""
         mem_list.append(({"input": input_data}, {"output": output_data}))
 
-    st.write(mem_list)
-
-
-    # for chat in chats_ref:
-    #     chat_data = chat.to_dict()
-    #     chat_history.append(chat_data)
-    # return chat_history
+    return mem_list
 
 
 def save_chat_message():
@@ -147,8 +141,9 @@ def main(memory):
         )
         if load_chat_button:
             try:
-                load_chat_message()
-                # memory.save_context
+                mem_list = load_chat_message()
+                memory.save_context(mem_list)
+                memory.load_memory_variables({})
                 st.success("성공적으로 불러왔습니다.")
             except Exception as e:
                 st.error("불러오기 실패: ", e)
