@@ -21,7 +21,7 @@ import os
 import chainlit as cl
 import streamlit as st
 
-from chatbot_add_agent import all_in_1_agent
+from chatbot_add_agent import all_in_1_agent, search_products
 from datetime import datetime
 
 # os.environ["OPENAI_API_KEY"] = "<openai-key>"
@@ -177,6 +177,11 @@ def search_general(input_text):
     return search
 
 
+def search_product(input_text):
+    search = search_products().invoke({"input": input_text})
+    return search
+
+
 memory = ConversationBufferWindowMemory(k=15)
 
 
@@ -222,7 +227,12 @@ def agent():
             name="Search datetime",
             func=lambda x: datetime.now().isoformat(),
             description="useful for when you need to know the current datetime",
-        )
+        ),
+        Tool.from_function(
+            name="Search product",
+            func=search_product,
+            description="useful for when you need to search product"
+        ),
     ]
 
     prompt = CustomPromptTemplate(
