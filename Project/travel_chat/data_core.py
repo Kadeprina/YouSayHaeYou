@@ -172,7 +172,7 @@ def database_save(df):
     with open("data.json") as f:
         data = json.load(f)
 
-    for document_id, document_data in data.items():
-        doc_ref = db.collection("city").document(document_id)
+    for document_data in data:
+        doc_ref = db.collection("city").document()
         doc_ref.set(document_data)
-        st.write(f'Document {document_id} 업로드 완료')
+        st.success(f'Document {doc_ref.id} 업로드 완료')
