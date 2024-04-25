@@ -24,8 +24,6 @@ def load_chat_message():
 
     uid = user.uid
 
-    chat_history = []
-
     chats_ref = db.collection("chats").where("user", "==", uid).get()
     sorted_docs = sorted(chats_ref, key=lambda doc: doc.id)
 
@@ -42,10 +40,7 @@ def load_chat_message():
 
     [[serv1.append(item["actor"]), serv2.append(item["message"])] for item in serv]
 
-    if len(serv1) % 2 == 0:
-        cc = len(serv1) // 2
-    else:
-        cc = (len(serv1) + 1) // 2
+    cc = len(serv1) // 2 + len(serv1) % 2
 
     st.session_state["messages"] = []
     for i in range(cc):
@@ -53,9 +48,6 @@ def load_chat_message():
         st.session_state["messages"].append(Message(actor=serv1[index], payload=serv2[index]))
         if index + 1 < len(serv1):
             st.session_state["messages"].append(Message(actor=serv1[index + 1], payload=serv2[index + 1]))
-
-    if len(serv1) % 2 != 0:
-        st.session_state["messages"].append(Message(actor=serv1[-1], payload=serv2[-1]))
 
 
     # for chat in chats_ref:
