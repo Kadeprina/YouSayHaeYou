@@ -7,17 +7,17 @@ from datetime import datetime
 
 db = firestore.client()
 
-# 사용자 입력 받기
-user = None
-try:
-    user = auth.get_user_by_email(st.session_state["username"])
-except auth.UserNotFoundError:
-    st.error("사용자를 찾을 수 없습니다.")
 
-uid = user.uid
+def load_chat_message():
+    user = None
+    # 사용자 입력 받기
+    try:
+        user = auth.get_user_by_email(st.session_state["username"])
+    except auth.UserNotFoundError:
+        st.error("사용자를 찾을 수 없습니다.")
 
-
-def load_chat_message(uid):
+    uid = user.uid
+    
     chat_history = []
 
     chats_ref = db.collection("chats").where("user", "==", uid).get()
@@ -32,7 +32,16 @@ def load_chat_message(uid):
     # return chat_history
 
 
-def save_chat_message(uid):
+def save_chat_message():
+    user = None
+    # 사용자 입력 받기
+    try:
+        user = auth.get_user_by_email(st.session_state["username"])
+    except auth.UserNotFoundError:
+        st.error("사용자를 찾을 수 없습니다.")
+
+    uid = user.uid
+    
     timestamp = datetime.now()
     for i in range(len(st.session_state["messages"])):
         chat_data = {
@@ -92,7 +101,7 @@ def main():
         )
         if create_chat_button:
             try:
-                save_chat_message(uid)
+                save_chat_message()
                 st.success("성공적으로 저장했습니다.")
             except Exception as e:
                 st.error("저장 실패: ", e)
@@ -102,7 +111,7 @@ def main():
         )
         if load_chat_button:
             try:
-                chat_history = load_chat_message(uid)
+                chat_history = load_chat_message()
                 # st.session_state.messages = chat_history
                 st.success("성공적으로 불러왔습니다.")
             except Exception as e:
