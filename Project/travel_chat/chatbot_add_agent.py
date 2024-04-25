@@ -1,11 +1,15 @@
 import json
 import requests
-from langchain.tools import BaseTool
-from langchain.agents import AgentType, initialize_agent, Tool
+from langchain.tools import BaseTool, StructuredTool
+from langchain.agents import AgentType, initialize_agent, AgentExecutor, create_openai_functions_agent, Tool
 from langchain.chat_models import ChatOpenAI
+
+from langchain import hub
 
 from typing import Optional, Type
 from pydantic import BaseModel, Field
+
+from langchain_community.utilities.infobip import InfobipAPIWrapper
 
 
 class TravelPOIInput(BaseModel):
@@ -101,3 +105,35 @@ def all_in_1_agent(input):
     tool_result = open_ai_agent.run(input)
 
     return tool_result
+
+
+def sms_or_email():
+    instructions = "You are the messenger. Convey exactly what the user wants to convey."
+    base_prompt = hub.pull("langchain-ai/openai-functions-template")
+    prompt = base_prompt.partial(instructions=instructions)
+    llm = ChatOpenAI(temperature=0)
+
+    class EmailInput(BaseModel):
+        body: str = Field(description="Email body text")
+        to: str = Field(description="Email address to send to. Example: email@example.com")
+        sender: str = Field(description="Email address to send from, must be 'imsi@imsi.com'")
+        subject: str = Field(description="Email subject")
+        channel: str = Field(description="Email channel, must be 'email'")
+
+    infobip_api_wrapper: InfobipAPIWrapper = InfobipAPIWrapper()
+    infobip_tool = StructuredTool.from_function(
+        name="infobip_email",
+        description="Send Email via Infobip. If you need to send email, use infobip_email",
+        func=infobip_api_wrapper.run,
+        args_schema=EmailInput,
+    )
+    tools = [infobip_tool]
+
+    agent = create_openai_functions_agent(llm, tools, prompt)
+    agent_executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
+        verbose=True,
+    )
+
+    return agent_executor
