@@ -1,11 +1,17 @@
 from firebase_admin import firestore, auth
 from google.cloud.firestore_v1 import aggregation
 from google.cloud.firestore_v1.base_query import FieldFilter
+from pydantic import BaseModel
 import streamlit as st
 import re
 from datetime import datetime
 
 db = firestore.client()
+
+
+class Message(BaseModel):
+    actor: str
+    payload: str
 
 
 def load_chat_message():
@@ -36,9 +42,10 @@ def load_chat_message():
 
     [[serv1.append(item["actor"]), serv2.append(item["message"])] for item in serv]
 
-    # st.session_state["messages"] =
+    for i in range(len(serv1)):
+        st.session_state["messages"].append(Message(actor=serv1[i], payload=serv2[i]))
+        st.session_state["messages"].append(Message(actor=serv1[i + 1], payload=serv2[i + 1]))
 
-    st.write(serv1, serv2)
 
     # for chat in chats_ref:
     #     chat_data = chat.to_dict()
