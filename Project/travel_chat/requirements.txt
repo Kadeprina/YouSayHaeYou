@@ -21,4 +21,4 @@ extra-streamlit-components==0.1.71
 email_validator==2.1.1
 langchainhub==0.1.15
 ionic-langchain==0.2.3
-dataclasses-json==0.5.15
+dataclasses-json==0.5.14
