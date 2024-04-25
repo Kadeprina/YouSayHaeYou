@@ -6,7 +6,6 @@ import re
 from datetime import datetime
 
 db = firestore.client()
-st.session_state["username"] = None
 
 # 사용자 입력 받기
 user = None
