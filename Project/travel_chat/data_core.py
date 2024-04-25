@@ -96,7 +96,7 @@ def save_chat_message():
 #         st.write(f"{chat['timestamp']} - {chat['user']}: {chat['message']}")
 
 
-def delete_chat_message():
+def delete_chat_message(memory):
     collection_ref = db.collection("chats")
     query = collection_ref.where(filter=FieldFilter("user_name", "==", st.session_state["name"]))
     aggregate_query = aggregation.AggregationQuery(query)
@@ -108,6 +108,9 @@ def delete_chat_message():
 
     for i in range(int(count)):
         db.collection("chats").document(st.session_state["name"] + str(i)).delete()
+
+    st.session_state["messages"] = []
+    memory.aclear()
 
 
 # def save_button(email, uid):
@@ -155,7 +158,7 @@ def main(memory):
         )
         if delete_chat_button:
             try:
-                delete_chat_message()
+                delete_chat_message(memory)
                 st.success("성공적으로 삭제되었습니다.")
             except Exception as e:
                 st.error("삭제 실패: ", e)
