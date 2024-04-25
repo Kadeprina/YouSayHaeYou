@@ -245,6 +245,9 @@ def main():
             'type': 'Type'
         })
 
+        if st.button(f"업로드"):
+            data_core.database_save(df_place_rename)
+
         def total_map():
             type_colour = {'Hotel': 'blue', 'Restaurant': 'green', 'Tourist': 'orange'}
             type_icon = {'Hotel': 'home', 'Restaurant': 'cutlery', 'Tourist': 'star'}
