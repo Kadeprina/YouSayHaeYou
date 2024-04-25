@@ -32,9 +32,13 @@ def load_chat_message():
         }
         serv.append(extracted_data)
 
-    list_2d = [[item["actor"], item["message"]] for item in serv]
+    serv1, serv2 = [], []
 
-    st.write(list_2d)
+    [[serv1.append(item["actor"]), serv2.append(item["message"])] for item in serv]
+
+    # st.session_state["messages"] =
+
+    st.write(serv1, serv2)
 
     # for chat in chats_ref:
     #     chat_data = chat.to_dict()
