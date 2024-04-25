@@ -42,15 +42,20 @@ def load_chat_message():
 
     [[serv1.append(item["actor"]), serv2.append(item["message"])] for item in serv]
 
-    if len(serv1)//2 == 0:
-        cc = len(serv1)//2
+    if len(serv1) % 2 == 0:
+        cc = len(serv1) // 2
     else:
-        cc = (len(serv1)//2) + 1
+        cc = (len(serv1) + 1) // 2
 
     st.session_state["messages"] = []
     for i in range(cc):
-        st.session_state["messages"].append(Message(actor=serv1[i], payload=serv2[i]))
-        st.session_state["messages"].append(Message(actor=serv1[i + 1], payload=serv2[i + 1]))
+        index = i * 2
+        st.session_state["messages"].append(Message(actor=serv1[index], payload=serv2[index]))
+        if index + 1 < len(serv1):
+            st.session_state["messages"].append(Message(actor=serv1[index + 1], payload=serv2[index + 1]))
+
+    if len(serv1) % 2 != 0:
+        st.session_state["messages"].append(Message(actor=serv1[-1], payload=serv2[-1]))
 
 
     # for chat in chats_ref:
