@@ -50,16 +50,17 @@ def load_chat_message():
         if index + 1 < len(serv1):
             st.session_state["messages"].append(Message(actor=serv1[index + 1], payload=serv2[index + 1]))
 
-    mem_list = []
+    mem_list_input, mem_list_output = []
     serv2.pop(0)
 
     for i in range(cc):
         index = i * 2
         input_data = serv2[index] if index < len(serv2) else ""
         output_data = serv2[index + 1] if index + 1 < len(serv2) else ""
-        mem_list.append(({"input": input_data}, {"output": output_data}))
+        mem_list_input.append({"input": input_data})
+        mem_list_output.append({"output": output_data})
 
-    return mem_list
+    return mem_list_input, mem_list_output
 
 
 def save_chat_message():
@@ -141,9 +142,11 @@ def main(memory):
         )
         if load_chat_button:
             try:
-                mem_list = load_chat_message()
-                memory.save_context(mem_list)
+                st.write(memory.buffer)
+                mem_list_input, mem_list_output = load_chat_message()
+                memory.save_context(mem_list_input, mem_list_output)
                 memory.load_memory_variables({})
+                st.write(memory.buffer)
                 st.success("성공적으로 불러왔습니다.")
             except Exception as e:
                 st.error("불러오기 실패: ", e)
