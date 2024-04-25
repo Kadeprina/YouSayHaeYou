@@ -125,7 +125,7 @@ def sms_or_email():
         subject: str = Field(description="Email subject")
         channel: str = Field(description="Email channel, must be 'email'")
 
-    infobip_api_wrapper: InfobipAPIWrapper = InfobipAPIWrapper()
+    infobip_api_wrapper: InfobipAPIWrapper = InfobipAPIWrapper(infobip_api_key=os.environ["INFOBIP_API_KEY"], infobip_base_url=os.environ["INFOBIP_BASE_URL"])
     infobip_tool = StructuredTool.from_function(
         name="infobip_email",
         description="Send Email via Infobip. If you need to send email, use infobip_email",
