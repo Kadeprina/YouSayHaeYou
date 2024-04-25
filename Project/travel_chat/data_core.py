@@ -81,7 +81,7 @@ def save_chat_message():
             "actor": st.session_state["messages"][i].actor,
             "timestamp": timestamp
         }
-        db.collection("chats").document(st.session_state["name"] + str(0) + str(i)).set(chat_data)
+        db.collection("chats").document(st.session_state["name"] + str('{:02d}'.format(i))).set(chat_data)
 
 
 # def imsi():
@@ -106,7 +106,7 @@ def delete_chat_message(memory):
     count = re.search(r'value=(\d+)', str(count)).group(1)
 
     for i in range(int(count)):
-        db.collection("chats").document(st.session_state["name"] + str(0) + str(i)).delete()
+        db.collection("chats").document(st.session_state["name"] + str('{:02d}'.format(i))).delete()
 
     st.session_state["messages"] = []
     memory.aclear()
