@@ -4,6 +4,8 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 from pydantic import BaseModel
 import streamlit as st
 import re
+import pandas as pd
+import json
 from datetime import datetime
 
 db = firestore.client()
@@ -164,3 +166,13 @@ def main(memory):
                 st.success("성공적으로 삭제되었습니다.")
             except Exception as e:
                 st.error("삭제 실패: ", e)
+
+def database_save(df):
+    df.to_json("data.json", orient='records')
+    with open("data.json") as f:
+        data = json.load(f)
+
+    for document_id, document_data in data.items():
+        doc_ref = db.collection("city").document(document_id)
+        doc_ref.set(document_data)
+        st.write(f'Document {document_id} 업로드 완료')
