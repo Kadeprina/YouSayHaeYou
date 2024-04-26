@@ -14,19 +14,19 @@ from langchain.chat_models import ChatOpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
-class ScraperInput_hotel(BaseModel):
+class schema_hotel(BaseModel):
     """Inputs for function"""
-    destination: str = Field(description="The place where user will stay.")
-    IN: str = Field(description="It is your check-in date, It has to be like this: 2024-05-04")
-    OUT: str = Field(description="It is your check-out date, It has to be like this: 2024-05-05")
-    person: int = Field(description="It is how many people will stay.")
-    rooms: int = Field(description="It is how many rooms to reserve.")
+    destination: str = Field(..., description="The place where user will stay.")
+    IN: str = Field(..., description="It is your check-in date, It has to be like this: 2024-05-04")
+    OUT: str = Field(..., description="It is your check-out date, It has to be like this: 2024-05-05")
+    person: int = Field(..., description="It is how many people will stay.")
+    rooms: int = Field(..., description="It is how many rooms to reserve.")
 
 
 class SearchTool_hotel(BaseTool):
     name = "hotel_search_tool"
     description = "useful when you need to search hotel"
-    args_schema: Type[BaseModel] = ScraperInput_hotel
+    args_schema: Type[BaseModel] = schema_hotel
 
     def _run(self, destination: str, IN: str, OUT: str, person: int, rooms: int):
         return main(destination, IN, OUT, person, rooms)
