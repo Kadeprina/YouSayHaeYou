@@ -18,9 +18,9 @@ class ScraperInput_hotel(BaseModel):
     """Inputs for function"""
     destination: str = Field(description="The place where user will stay.")
     IN: str = Field(description="It is your check-in date, It has to be like this: 2024-05-04")
-    OUT: str =Field(description="It is your check-out date, It has to be like this: 2024-05-05")
-    person: int =Field(description="It is how many people will stay.")
-    rooms: int =Field(description="It is how many rooms to reserve.")
+    OUT: str = Field(description="It is your check-out date, It has to be like this: 2024-05-05")
+    person: int = Field(description="It is how many people will stay.")
+    rooms: int = Field(description="It is how many rooms to reserve.")
 
 
 class SearchTool_hotel(BaseTool):
@@ -86,11 +86,11 @@ def main(destination, IN, OUT, person, rooms):
     base_url = "https://kr.hotels.com/Hotel-Search?"
 
     # 입력값
-    destination = destination   # '후쿠오카'
-    d1 = IN   # '2024-05-04'
-    d2 = OUT   # '2024-05-05'
-    adults = person   # '2'
-    rooms = rooms   # '1'
+    destination = destination  # '후쿠오카'
+    d1 = IN  # '2024-05-04'
+    d2 = OUT  # '2024-05-05'
+    adults = person  # '2'
+    rooms = rooms  # '1'
 
     # 고정값 설정
     flexibility = '0_DAY'
