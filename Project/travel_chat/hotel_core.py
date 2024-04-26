@@ -22,8 +22,9 @@ class schema_hotel(BaseModel):
 
 
 class SearchTool_hotel(BaseTool):
-    def __init__(self, destination, IN, OUT, person, rooms):
+    def __init__(self):
         super().__init__()
+        self.return_direct = True
 
     name = "hotel_search_tool"
     description = "useful when you need to search hotel"
