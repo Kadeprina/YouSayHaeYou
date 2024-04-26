@@ -33,26 +33,6 @@ import datetime
 load_dotenv()
 
 
-if not firebase_admin._apps:
-    cred_json = OrderedDict()
-    cred_json["type"] = st.secrets["type"]  # 이렇게 값을 숨겨주는 게 좋다.
-    cred_json["project_id"] = st.secrets["project_id"]
-    cred_json["private_key_id"] = st.secrets["private_key_id"]
-    cred_json["private_key"] = st.secrets["private_key"].replace('\\n', '\n')
-    cred_json["client_email"] = st.secrets["client_email"]
-    cred_json["client_id"] = st.secrets["client_id"]
-    cred_json["auth_uri"] = st.secrets["auth_uri"]
-    cred_json["token_uri"] = st.secrets["token_uri"]
-    cred_json["auth_provider_x509_cert_url"] = st.secrets["auth_provider_x509_cert_url"]
-    cred_json["client_x509_cert_url"] = st.secrets["client_x509_cert_url"]
-    cred_json["universe_domain"] = st.secrets["universe_domain"]
-
-    js = json.dumps(cred_json)
-    js_dict = json.loads(js)
-    cred = firebase_admin.credentials.Certificate(js_dict)
-    firebase_admin.initialize_app(cred)
-
-
 # Retrieve the API key from the environment variable
 # api_key = os.getenv('API_KEY')
 # openai_api_key = os.getenv("MY_OPENAI_KEY")
