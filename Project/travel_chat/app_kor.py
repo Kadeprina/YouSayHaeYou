@@ -1,559 +1,194 @@
-# import library
-import asyncio
-
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
+from firebase_admin import firestore, auth
+from google.cloud.firestore_v1 import aggregation
+from google.cloud.firestore_v1.base_query import FieldFilter
+from pydantic import BaseModel
 import streamlit as st
+import re
 import pandas as pd
 import json
-import requests
-import os
-from dotenv import load_dotenv
-from pydantic import BaseModel, Field
-import folium
-from streamlit_folium import folium_static
+from datetime import datetime
 
-import chatbot_core
-import route_core
-from firebase_admin import auth
-import auth_core
-import data_core
-
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import DataFrameLoader
-from langchain.agents import tool
-import datetime
-
-load_dotenv()
-
-# Load environment variables from .env file
-
-# Retrieve the API key from the environment variable
-# api_key = os.getenv('API_KEY')
-# openai_api_key = os.getenv("MY_OPENAI_KEY")
-url = 'https://places.googleapis.com/v1/places:searchText'
-
-st.set_page_config(page_title="travel assistant", layout="wide", page_icon="🛫", menu_items={
-        'About': "이 app은 여러분들의 여행을 도와줄 거에요!"
-    })
-
-# st.write(os.getcwd())
-with st.sidebar:
-    auth_core.main()
+db = firestore.client()
 
 
-# if not api_key:
-#     raise ValueError("API_KEY not found in environment variables. Please set it in the .env file.")
-# if not openai_api_key:
-#     raise ValueError("MY_OPENAI_KEY not found in environment variables. Please set it in the .env file.")
-
-def get_current_temperature(latitude: float, longitude: float) -> dict:
-    """Fetch current temperature for given coordinates."""
-
-    BASE_URL = "https://api.open-meteo.com/v1/forecast"
-
-    # Parameters for the request
-    params = {
-        'latitude': latitude,
-        'longitude': longitude,
-        'hourly': 'temperature_2m',
-        'forecast_days': 1,
-    }
-
-    # Make the request
-    response = requests.get(BASE_URL, params=params)
-
-    if response.status_code == 200:
-        results = response.json()
-    else:
-        raise Exception(f"API Request failed with status code: {response.status_code}")
-
-    current_utc_time = datetime.datetime.utcnow()
-    time_list = [datetime.datetime.fromisoformat(time_str.replace('Z', '+00:00')) for time_str in
-                 results['hourly']['time']]
-    temperature_list = results['hourly']['temperature_2m']
-
-    closest_time_index = min(range(len(time_list)), key=lambda i: abs(time_list[i] - current_utc_time))
-    current_temperature = temperature_list[closest_time_index]
-
-    return current_temperature
+class Message(BaseModel):
+    actor: str
+    payload: str
 
 
-def main():
-    # st.sidebar.title("Travel Recommendation App Demo")
-    # st.write(st.session_state)
-    # if 'user_info' not in st.session_state:
-    #     return
-    if not st.session_state['authentication_status']:
-        return
-    # api_key = st.sidebar.text_input("Google Maps API key를 입력해주세요:", type="password")
-    # os.environ["GOOGLE_MAP_API_KEY"] = api_key
-    # openai_api_key = st.sidebar.text_input("OpenAI API key를 입력해주세요:", type="password")
-    # os.environ["OPENAI_API_KEY"] = openai_api_key
-    os.environ["GOOGLE_MAP_API_KEY"] = st.secrets["GOOGLE_MAP_API_KEY"]
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+def load_chat_message():
+    user = None
+    # 사용자 입력 받기
+    try:
+        user = auth.get_user_by_email(st.session_state["username"])
+    except auth.UserNotFoundError:
+        st.error("사용자를 찾을 수 없습니다.")
 
-    st.sidebar.write('아래 내용을 모두 채워주세요.')
-    destination = st.sidebar.text_input('어느 지역으로 가시나요?:', key='destination_app')
-    min_rating = st.sidebar.number_input('최소 별점은 얼마로 할까요?:', value=4.0, min_value=0.5, max_value=4.5, step=0.5,
-                                         key='minrating_app')
-    radius = st.sidebar.number_input('몇 미터 반경으로 찾을까요?:', value=3000, min_value=500, max_value=50000, step=100,
-                                     key='radius_app')
+    uid = user.uid
 
-    if destination:
-        headers = {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': os.environ["GOOGLE_MAP_API_KEY"],
-            'X-Goog-FieldMask': 'places.location',
+    chats_ref = db.collection("chats").where("user", "==", uid).get()
+    sorted_docs = sorted(chats_ref, key=lambda doc: doc.id)
+
+    serv = []
+    for doc in sorted_docs:
+        doc_data = doc.to_dict()
+        extracted_data = {
+            "actor": doc_data.get("actor"),
+            "message": doc_data.get("message")
         }
-        data = {
-            'textQuery': destination,
-            'maxResultCount': 1,
+        serv.append(extracted_data)
+
+    serv1, serv2 = [], []
+
+    [[serv1.append(item["actor"]), serv2.append(item["message"])] for item in serv]
+
+    cc = len(serv1) // 2 + len(serv1) % 2
+
+    st.session_state["messages"] = []
+    for i in range(cc):
+        index = i * 2
+        st.session_state["messages"].append(Message(actor=serv1[index], payload=serv2[index]))
+        if index + 1 < len(serv1):
+            st.session_state["messages"].append(Message(actor=serv1[index + 1], payload=serv2[index + 1]))
+
+    mem_list_input, mem_list_output = [], []
+    serv2.pop(0)
+
+    for i in range(cc):
+        index = i * 2
+        input_data = serv2[index] if index < len(serv2) else ""
+        output_data = serv2[index + 1] if index + 1 < len(serv2) else ""
+        mem_list_input.append({"input": input_data})
+        mem_list_output.append({"output": output_data})
+
+    return mem_list_input, mem_list_output
+
+
+def save_chat_message():
+    user = None
+    # 사용자 입력 받기
+    try:
+        user = auth.get_user_by_email(st.session_state["username"])
+    except auth.UserNotFoundError:
+        st.error("사용자를 찾을 수 없습니다.")
+
+    uid = user.uid
+
+    timestamp = datetime.now()
+    for i in range(len(st.session_state["messages"])):
+        chat_data = {
+            "user": uid,
+            "user_name": st.session_state["name"],
+            "message": st.session_state["messages"][i].payload,
+            "actor": st.session_state["messages"][i].actor,
+            "timestamp": timestamp
         }
-
-        # Convert data to JSON format
-        json_data = json.dumps(data)
-
-        # Make the POST request
-        response = requests.post(url, data=json_data, headers=headers)
-
-        # Print the response
-        result = response.json()
-
-        print(result)
-
-        # Convert JSON data to DataFrame
-        df = pd.json_normalize(result['places'])
-
-        # Get the latitude and longitude values
-        initial_latitude = df['location.latitude'].iloc[0]
-        initial_longitude = df['location.longitude'].iloc[0]
-
-        # Create the circle
-        circle_center = {"latitude": initial_latitude, "longitude": initial_longitude}
-        circle_radius = radius
-
-        headers_place = {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': os.environ["GOOGLE_MAP_API_KEY"],
-            'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.priceLevel,places.userRatingCount,places.rating,places.websiteUri,places.location,places.googleMapsUri',
-        }
-
-        def hotel():
-            data_hotel = {
-                'textQuery': f'Place to stay near {destination}',
-                'minRating': min_rating,
-                'languageCode': 'ko',
-                'locationBias': {
-                    "circle": {
-                        "center": circle_center,
-                        "radius": circle_radius
-                    }
-                }
-            }
-
-            # Convert data to JSON format
-            json_data_hotel = json.dumps(data_hotel)
-            # Make the POST request
-            response_hotel = requests.post(url, data=json_data_hotel, headers=headers_place)
-            # Print the response
-            result_hotel = response_hotel.json()
-            print(result_hotel)
-            # Convert JSON data to DataFrame
-            df_hotel = pd.json_normalize(result_hotel['places'])
-            # Add 'type'
-            df_hotel['type'] = 'Hotel'
-            return df_hotel
-
-        def restaurant():
-            data_restaurant = {
-                'textQuery': f'Place to eat near {destination}',
-                'minRating': min_rating,
-                'languageCode': 'ko',
-                'locationBias': {
-                    "circle": {
-                        "center": circle_center,
-                        "radius": circle_radius
-                    }
-                }
-            }
-
-            # Convert data to JSON format
-            json_data_restaurant = json.dumps(data_restaurant)
-            # Make the POST request
-            response_restaurant = requests.post(url, data=json_data_restaurant, headers=headers_place)
-            # Print the response
-            result_restaurant = response_restaurant.json()
-            print(result_restaurant)
-            # Convert JSON data to DataFrame
-            df_restaurant = pd.json_normalize(result_restaurant['places'])
-            # Add 'type'
-            df_restaurant['type'] = 'Restaurant'
-            return df_restaurant
-
-        def tourist():
-            data_tourist = {
-                'textQuery': f'Tourist attraction near {destination}',
-                'minRating': min_rating,
-                'languageCode': 'ko',
-                'locationBias': {
-                    "circle": {
-                        "center": circle_center,
-                        "radius": circle_radius
-                    }
-                }
-            }
-
-            # Convert data to JSON format
-            json_data_tourist = json.dumps(data_tourist)
-            # Make the POST request
-            response_tourist = requests.post(url, data=json_data_tourist, headers=headers_place)
-            # Print the response
-            result_tourist = response_tourist.json()
-            print(result_tourist)
-            # Convert JSON data to DataFrame
-            df_tourist = pd.json_normalize(result_tourist['places'])
-            # Add 'type'
-            df_tourist['type'] = 'Tourist'
-            return df_tourist
-
-        df_hotel1 = hotel()
-        df_restaurant1 = restaurant()
-        df_tourist1 = tourist()
-
-        # Assuming all three dataframes have similar columns
-        df_place = pd.concat([df_hotel1, df_restaurant1, df_tourist1], ignore_index=True)
-        df_place = df_place.sort_values(by=['userRatingCount', 'rating'], ascending=[False, False]).reset_index(
-            drop=True)
-
-        df_place_rename = df_place[
-            ['type', 'displayName.text', 'formattedAddress', 'rating', 'userRatingCount', 'googleMapsUri', 'websiteUri',
-             'location.latitude', 'location.longitude', 'displayName.languageCode']]
-        df_place_rename = df_place_rename.rename(columns={
-            'displayName.text': 'Name',
-            'rating': 'Rating',
-            'googleMapsUri': 'Google Maps URL',
-            'websiteUri': 'Website URL',
-            'userRatingCount': 'User Rating Count',
-            'location.latitude': 'Latitude',
-            'location.longitude': 'Longitude',
-            'formattedAddress': 'Address',
-            'displayName.languageCode': 'Language Code',
-            'type': 'Type'
-        })
+        db.collection("chats").document(st.session_state["name"] + str('{:02d}'.format(i))).set(chat_data)
 
 
-        def total_map():
-            type_colour = {'Hotel': 'blue', 'Restaurant': 'green', 'Tourist': 'orange'}
-            type_icon = {'Hotel': 'home', 'Restaurant': 'cutlery', 'Tourist': 'star'}
-            print(df_place_rename['Latitude'][0], df_place_rename['Longitude'][0])
-            mymap = folium.Map(location=(df_place_rename['Latitude'][0], df_place_rename['Longitude'][0]), zoom_start=9,
-                               control_scale=True)
-
-            for i in range(len(df_place_rename)):
-                icon_color = type_colour[df_place_rename['Type'][i]]
-                icon_type = type_icon[df_place_rename['Type'][i]]
-                icon = folium.Icon(color=icon_color, icon=icon_type)
-
-                # Use different icons for hotels, restaurants, and tourist attractions
-                folium.Marker(location=(df_place_rename['Latitude'][i], df_place_rename['Longitude'][i]), icon=icon,
-                              popup="<i>{}</i>".format(df_place_rename['Name'][i])).add_to(mymap)
-
-            folium_static(mymap)
-
-        def database():
-            st.dataframe(df_place_rename)
-            total_map()
-            if st.button(f"업로드"):
-                data_core.database_save(df_place_rename)
-            country = st.text_input(f"삭제할 나라를 입력해주세요.", placeholder="나라명 또는 주소로 삭제 가능")
-            if st.button(f"삭제"):
-                data_core.database_delete_with_country(country)
-
-        def route():
-            st.header(f'길 찾기 🗺️')
-            start = st.text_input('어디에서 출발하시나요?:')
-            dest = st.text_input('어디로 가시나요?:')
-            sel = st.selectbox('어떻게 가시나요?', ('대중교통으로', '걸어서', '차로'))
-            if st.button('길 찾기'):
-                if sel == '대중교통으로':
-                    ddf, route1, distance, duration, start_point = route_core.s_to_d(start, dest, sel)
-                    m1 = route_core.draw_route_on_folium(ddf, start_point)
-                    folium_static(m1)
-                    st.text(f"거리는 {distance}km입니다.")
-                    st.text(f"예상 소요 시간은 {duration}에요!")
-                else:
-                    ddf, route1, distance, duration = route_core.s_to_d(start, dest, sel)
-                    m1 = route1.plot_route()
-                    folium_static(m1)
-                    st.text(f"거리는 {distance}km입니다.")
-                    st.text(f"예상 소요 시간은 {duration}에요!")
-
-        def maps():
-            st.header("🌏 여행 가이드 🌏")
-
-            places_type = st.radio('무엇을 찾고 계신가요?: ', ["호텔 🏨", "음식점 🍴", "관광 ⭐"])
-            initial_location = [initial_latitude, initial_longitude]
-            type_colour = {'Hotel': 'blue', 'Restaurant': 'green', 'Tourist': 'orange'}
-            type_icon = {'Hotel': 'home', 'Restaurant': 'cutlery', 'Tourist': 'star'}
-
-            st.subheader(f"{destination} 근처에서 {places_type}을 찾아봤어요!")
-            cur_temp = get_current_temperature(initial_latitude, initial_longitude)
-            st.text(f"{destination}의 현재 기온은 {cur_temp}°C 에요!")
-            if cur_temp > 23:
-                st.text(f"덥네요! 반팔을 챙겨가세요!")
-            elif cur_temp < 16:
-                st.text(f"춥네요! 긴팔을 챙겨가세요!")
-            else:
-                st.text(f"지금이 여행하기 딱 좋은 날씨! 바로 출발하세요!")
-
-            if places_type == '호텔 🏨':
-                df_place = df_hotel1
-                with st.spinner("잠시만 기다려주세요..."):
-                    for index, row in df_place.iterrows():
-                        location = [row['location.latitude'], row['location.longitude']]
-                        mymap = folium.Map(location=initial_location,
-                                           zoom_start=9, control_scale=True)
-                        content = (str(row['displayName.text']) + '<br>' +
-                                   'Rating: ' + str(row['rating']) + '<br>' +
-                                   'Address: ' + str(row['formattedAddress']) + '<br>' +
-                                   'Website: ' + str(row['websiteUri'])
-                                   )
-                        iframe = folium.IFrame(content, width=300, height=125)
-                        popup = folium.Popup(iframe, max_width=300)
-
-                        icon_color = type_colour[row['type']]
-                        icon_type = type_icon[row['type']]
-                        icon = folium.Icon(color=icon_color, icon=icon_type)
-
-                        # Use different icons for hotels, restaurants, and tourist attractions
-                        folium.Marker(location=location, popup=popup, icon=icon).add_to(mymap)
-
-                        st.write(f"## {index + 1}. {row['displayName.text']}")
-                        folium_static(mymap)
-                        st.write(f"평점: {row['rating']}")
-                        st.write(f"주소: {row['formattedAddress']}")
-                        st.write(f"웹사이트: {row['websiteUri']}")
-                        st.write(f"추가적인 정보: {row['googleMapsUri']}\n")
+# def imsi():
+#     st.title("과거 채팅 기록 불러오기")
+#
+#     chat_history = load_chat_history()
+#
+#     # 과거 채팅 기록 출력
+#     st.write("과거 채팅 기록:")
+#     for chat in chat_history:
+#         st.write(f"{chat['timestamp']} - {chat['user']}: {chat['message']}")
 
 
-            elif places_type == '음식점 🍴':
-                df_place = df_restaurant1
-                with st.spinner("잠시만 기다려주세요..."):
-                    for index, row in df_place.iterrows():
-                        location = [row['location.latitude'], row['location.longitude']]
-                        mymap = folium.Map(location=initial_location,
-                                           zoom_start=9, control_scale=True)
-                        content = (str(row['displayName.text']) + '<br>' +
-                                   'Rating: ' + str(row['rating']) + '<br>' +
-                                   'Address: ' + str(row['formattedAddress']) + '<br>' +
-                                   'Website: ' + str(row['websiteUri'])
-                                   )
-                        iframe = folium.IFrame(content, width=300, height=125)
-                        popup = folium.Popup(iframe, max_width=300)
+def delete_chat_message(memory):
+    collection_ref = db.collection("chats")
+    query = collection_ref.where(filter=FieldFilter("user_name", "==", st.session_state["name"]))
+    aggregate_query = aggregation.AggregationQuery(query)
 
-                        icon_color = type_colour[row['type']]
-                        icon_type = type_icon[row['type']]
-                        icon = folium.Icon(color=icon_color, icon=icon_type)
+    aggregate_query.count(alias="all")
+    counts = aggregate_query.get()
+    count = counts[0]
+    count = re.search(r'value=(\d+)', str(count)).group(1)
 
-                        # Use different icons for hotels, restaurants, and tourist attractions
-                        folium.Marker(location=location, popup=popup, icon=icon).add_to(mymap)
+    for i in range(int(count)):
+        db.collection("chats").document(st.session_state["name"] + str('{:02d}'.format(i))).delete()
 
-                        st.write(f"## {index + 1}. {row['displayName.text']}")
-                        folium_static(mymap)
-                        st.write(f"평점: {row['rating']}")
-                        st.write(f"주소: {row['formattedAddress']}")
-                        st.write(f"웹사이트: {row['websiteUri']}")
-                        st.write(f"추가적인 정보: {row['googleMapsUri']}\n")
-            else:
-                df_place = df_tourist1
-                with st.spinner("잠시만 기다려주세요..."):
-                    for index, row in df_place.iterrows():
-                        location = [row['location.latitude'], row['location.longitude']]
-                        mymap = folium.Map(location=initial_location,
-                                           zoom_start=9, control_scale=True)
-                        content = (str(row['displayName.text']) + '<br>' +
-                                   'Rating: ' + str(row['rating']) + '<br>' +
-                                   'Address: ' + str(row['formattedAddress']) + '<br>' +
-                                   'Website: ' + str(row['websiteUri'])
-                                   )
-                        iframe = folium.IFrame(content, width=300, height=125)
-                        popup = folium.Popup(iframe, max_width=300)
+    st.session_state["messages"] = []
+    memory.aclear()
 
-                        icon_color = type_colour[row['type']]
-                        icon_type = type_icon[row['type']]
-                        icon = folium.Icon(color=icon_color, icon=icon_type)
 
-                        # Use different icons for hotels, restaurants, and tourist attractions
-                        folium.Marker(location=location, popup=popup, icon=icon).add_to(mymap)
+# def save_button(email, uid):
+#     st.title("채팅 기록 저장 및 불러오기")
+#
+#     message = st.text_area("메시지를 입력하세요:")
+#
+#     # '전송' 버튼 클릭 시 채팅 저장
+#     if st.button("저장"):
+#         if uid.strip() != "" and message.strip() != "":
+#             save_chat_message(uid, message)
+#             st.success("채팅이 저장되었습니다!")
+#         else:
+#             st.error("사용자 UID 또는 메시지가 비어있습니다.")
 
-                        st.write(f"## {index + 1}. {row['displayName.text']}")
-                        folium_static(mymap)
-                        st.write(f"평점: {row['rating']}")
-                        st.write(f"주소: {row['formattedAddress']}")
-                        st.write(f"웹사이트: {row['websiteUri']}")
-                        st.write(f"추가적인 정보: {row['googleMapsUri']}\n")
 
-        def chatbot():
-            class Message(BaseModel):
-                actor: str
-                payload: str
-
-            # 사용자 입력 받기
-            user = None
+def main(memory):
+    with st.sidebar:
+        c1, c2, c3 = st.columns(3)
+        create_chat_button = c1.button(
+            "채팅 내용 저장", use_container_width=True, key="create_chat_button"
+        )
+        if create_chat_button:
             try:
-                user = auth.get_user_by_email(st.session_state["username"])
-            except auth.UserNotFoundError:
-                st.error("사용자를 찾을 수 없습니다.")
+                save_chat_message()
+                st.success("성공적으로 저장했습니다.")
+            except Exception as e:
+                st.error("저장 실패: ", e)
 
-            uid = user.uid
+        load_chat_button = c2.button(
+            "채팅 내용 불러오기", use_container_width=True, key="load_chat_button"
+        )
+        if load_chat_button:
+            try:
+                mem_list_input, mem_list_output = load_chat_message()
+                for i in range(len(mem_list_input)):
+                    memory.save_context(mem_list_input[i], mem_list_output[i])
+                memory.load_memory_variables({})
+                st.rerun()
+                st.success("성공적으로 불러왔습니다.")
+            except Exception as e:
+                st.error("불러오기 실패: ", e)
 
-            # llm = ChatOpenAI(openai_api_key=os.environ["OPENAI_API_KEY"], model_name='gpt-3.5-turbo', temperature=0)
+        delete_chat_button = c3.button(
+            "삭제", use_container_width=True, key="delete_chat_button"
+        )
+        if delete_chat_button:
+            try:
+                delete_chat_message(memory)
+                st.session_state["messages"] = [Message(actor="ai", payload="안녕하세요! 어떤 도움이 필요하신가요?")]
+                st.rerun()
+                st.success("성공적으로 삭제되었습니다.")
+            except Exception as e:
+                st.error("삭제 실패: ", e)
 
-            USER = "user"
-            ASSISTANT = "ai"
-            MESSAGES = "messages"
+def database_save(df):
+    # df.to_json("data.json", orient='records')
+    # with open("data.json") as f:
+    #     data = json.load(f)
+    #
+    # for document_data in data:
+    #     doc_ref = db.collection("city").document()
+    #     doc_ref.set(document_data)
+    #     st.success(f'Document {doc_ref.id} 업로드 완료')
 
-            # def initialize_session_state():
-            if MESSAGES not in st.session_state:
-                st.session_state[MESSAGES] = [Message(actor=ASSISTANT, payload="안녕하세요! 어떤 도움이 필요하신가요?")]
-
-            msg: Message
-            for msg in st.session_state[MESSAGES]:
-                st.chat_message(msg.actor).write(msg.payload)
-
-
-            # Prompt
-            query: str = st.chat_input("이곳에 질문을 입력하세요.")
-
-            # Combine info
-            df_place['combined_info'] = df_place.apply(lambda
-                                                           row: f"Type: {row['type']}, Name: {row['displayName.text']}. Rating: {row['rating']}. Address: {row['formattedAddress']}. Website: {row['websiteUri']}",
-                                                       axis=1)
-            # Load Processed Dataset
-            loader = DataFrameLoader(df_place, page_content_column="combined_info")
-            docs = loader.load()
-
-            # Document splitting
-            text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            texts = text_splitter.split_documents(docs)
-
-            # embeddings model
-            # Define the path to the pre-trained model you want to use
-            modelPath = "sentence-transformers/all-MiniLM-l6-v2"
-
-            # Create a dictionary with model configuration options, specifying to use the CPU for computations
-            model_kwargs = {'device': 'cpu'}
-
-            # Create a dictionary with encoding options, specifically setting 'normalize_embeddings' to False
-            encode_kwargs = {'normalize_embeddings': False}
-
-            # Initialize an instance of HuggingFaceEmbeddings with the specified parameters
-            embeddings = HuggingFaceEmbeddings(
-                model_name=modelPath,  # Provide the pre-trained model's path
-                model_kwargs=model_kwargs,  # Pass the model configuration options
-                encode_kwargs=encode_kwargs  # Pass the encoding options
-            )
-
-            # Vector DB
-            vectorstore = FAISS.from_documents(texts, embeddings)
-
-            # template = """
-            # 당신의 임무는 user가 원활하게 여행을 계획하고 마칠 수 있도록 돕는 것입니다.
-            # 무조건 한국어로 답하십시오.
-            # 다음 context와 chat history를 통해 user가 입력한 내용을 바탕으로 원하는 내용을 찾을 수 있도록 지원하고, 여행을 계획할 수 있도록 지원하세요.
-            # 만약 user가 일정을 계획하기를 원한다면 user에게 몇 명과 함께 가는지, 누구와 가는지, 언제 가는지, 몇 박 몇 일 일정인지를 물어보고 이동거리를 고려한 일정을 세워주세요.
-            # 만약, 장소를 추천해야 한다면 주소, 전화번호, 웹사이트와 함께 3가지의 추천을 제공하세요.
-            # 평점과 사용자 평점 수를 기준으로 추천을 정렬합니다.
-            #
-            # {context}
-            #
-            # chat history: {history}
-            #
-            # input: {question}
-            # Your Response:
-            # """
-            #
-            # # prompt = PromptTemplate(
-            # #     input_variables=["context", "history", "question"],
-            # #     template=template,
-            # # )
-            #
-            # prompt = ChatPromptTemplate.from_template(template)
-            #
-            # memory = ConversationBufferMemory(memory_key="history", input_key="question", return_messages=True)
-            # qa = RetrievalQA.from_chain_type(
-            #     llm=llm,
-            #     chain_type='stuff',
-            #     retriever=vectorstore.as_retriever(),
-            #     verbose=True,
-            #     chain_type_kwargs={
-            #         "verbose": True,
-            #         "prompt": prompt,
-            #         "memory": memory}
-            # )
-            #
-            # google_search = GoogleSerperAPIWrapper()
-            # tools = [
-            #     Tool(name="Intermediate Answer",
-            #          func=google_search.run,
-            #          description="검색이 필요할 때 사용"),
-            #
-            #     Tool(name="Knowledge Base",
-            #          func=qa.run,
-            #          description="데이터베이스에서 필요한 정보가 있을 때 사용")
-            # ]
-            # agent = initialize_agent(tools=tools, llm=llm, agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
-
-            agent_executor, memory = chatbot_core.agent()
-
-            data_core.main(memory)
-
-            if query:
-                st.session_state[MESSAGES].append(Message(actor=USER, payload=str(query)))
-                st.chat_message(USER).write(query)
-
-                with st.spinner("생각중이에요..."):
-                    # response: str = qa.run(query=query)
-                    # response: str = agent.invoke({'input': query})['output']
-                    response: str = agent_executor.invoke({'input': query})['output']
-                    st.session_state[MESSAGES].append(Message(actor=ASSISTANT, payload=response))
-                    st.chat_message(ASSISTANT).write(response)
-            # st.write("Chatbot")
-
-        method = st.sidebar.radio(" ", ["검색 🔎", "챗봇 🤖", "데이터베이스 📑", "길찾기 🗺️"], key="method_app")
-        if method == "검색 🔎":
-            maps()
-        elif method == "챗봇 🤖":
-            chatbot()
-        elif method == "데이터베이스 📑":
-            database()
+    for index, row in df.iterrows():
+        query = db.collection("city").where("Name", "==", row["Name"]).limit(1).get()
+        existing_docs = [doc for doc in query]
+        if not existing_docs:
+            doc_ref = db.collection("city").document()
+            doc_ref.set(row.to_dict())
+            st.success(f'Document {doc_ref.id} 업로드 완료')
         else:
-            route()
-
-    js = '''
-        <script>
-            var body = window.parent.document.querySelector(".main");
-            console.log(body);
-            body.scrollTop = 0;
-        </script>
-        '''
-
-    if st.button(f"위로 이동"):
-        st.components.v1.html(js)
-
-    st.sidebar.markdown(''' 
-        ## Created by: 
-        Team.알리미\n
-        [한컴아카데미](https://hancomacademy.com/) with nvidia\n
-        special thanks to Ahmad Luay Adnani
-        ''')
-    st.image(
-        "https://camo.githubusercontent.com/6be6e494569696bede37e8b21f6ebe646fdbad1c81e39082e5136bf5a8afc067/68747470733a2f2f63617073756c652d72656e6465722e76657263656c2e6170702f6170693f747970653d776176696e6726636f6c6f723d6175746f266865696768743d3230302673656374696f6e3d68656164657226746578743d416c692d6d6526666f6e7453697a653d3930")
+            st.warning(f'{row["Name"]} 문서가 이미 존재합니다. 무시합니다.')
 
 
-if __name__ == '__main__':
-    main()
+def database_delete_with_country(country):
+    query = db.collection("city").where("Address", "<", country + u'\uf8ff').stream()
+    for doc in query:
+        doc.reference.delete()
