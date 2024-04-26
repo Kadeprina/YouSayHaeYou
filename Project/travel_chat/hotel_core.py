@@ -21,14 +21,22 @@ class schema_hotel(BaseModel):
     rooms: int = Field(..., description="It is how many rooms to reserve.")
 
 
-class SearchTool_hotel(BaseTool):
-
+class SearchTool_hotel():
     name = "hotel_search_tool"
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
-    def _run(self, destination: str, IN: str, OUT: str, person: int, rooms: int):
-        return main(destination, IN, OUT, person, rooms)
+    def _run(self, query):
+        if "Action Input" in query:
+            data = json.loads(query)
+            destination = data["location"]
+            IN = data["check_in"]
+            OUT = data["check_out"]
+            person = data["guests"]
+            rooms = data["room"]
+            return main(destination, IN, OUT, person, rooms)
+        else:
+            return f"cannot parse input"
 
     def _arun(self, args: schema_hotel):
         raise NotImplementedError("error: arun Not Implemented")
@@ -79,6 +87,7 @@ def extract_numeric_price(price_string):
     # 가격 문자열에서 숫자만 추출
     numeric_price = re.sub(r'[^0-9]', '', price_string)
     return numeric_price
+
 
 @tool
 def main(destination, IN, OUT, person, rooms):
