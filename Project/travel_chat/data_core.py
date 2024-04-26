@@ -189,6 +189,6 @@ def database_save(df):
 
 
 def database_delete_with_country(country):
-    query = db.collection("city").where("Address", "array_contains", country).stream()
+    query = db.collection("city").where("Address", "<", country + u'\uf8ff').stream()
     for doc in query:
         doc.reference.delete()
