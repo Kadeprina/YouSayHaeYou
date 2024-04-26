@@ -17,7 +17,7 @@ from langchain.tools import BaseTool, StructuredTool, tool
 
 chrome_version = "114.0.5735.90"  # Specify the version you want
 service = Service(executable_path=ChromeDriverManager(driver_version=chrome_version))
-driver = webdriver.Chrome(service=service).install())
+driver = webdriver.Chrome(service=service).install()
 
 
 class schema_hotel(BaseModel):
