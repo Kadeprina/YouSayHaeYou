@@ -23,3 +23,4 @@ langchainhub==0.1.15
 requests-toolbelt==1.0.0
 selenium==4.17.2
 seleniumbase==4.23.7
+webdriver-manager==4.0.1
