@@ -44,7 +44,7 @@ def input_parser(input_text):
     OUT = matches[2]
     person = matches[3]
     rooms = matches[4]
-    return _run(destination, IN, OUT, person, rooms)
+    return SearchTool_hotel()._run(destination, IN, OUT, person, rooms)
 
 
 # 함수 정의
