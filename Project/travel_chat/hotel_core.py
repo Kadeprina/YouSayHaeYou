@@ -14,7 +14,7 @@ from pydantic.v1 import BaseModel, Field
 from langchain.tools import BaseTool, StructuredTool, tool
 
 
-chrome_version = "124.0.0.0"  # Specify the version you want
+chrome_version = "114.0.5735.90"  # Specify the version you want
 driver = webdriver.Chrome(executable_path=ChromeDriverManager(driver_version=chrome_version).install())
 
 
