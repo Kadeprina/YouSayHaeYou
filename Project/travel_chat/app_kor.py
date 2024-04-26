@@ -3,7 +3,6 @@ import asyncio
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
-from firebase_admin import auth
 import streamlit as st
 import pandas as pd
 import json
@@ -16,6 +15,7 @@ from streamlit_folium import folium_static
 
 import chatbot_core
 import route_core
+from firebase_admin import auth
 import auth_core
 import data_core
 
@@ -458,9 +458,9 @@ def main():
                 encode_kwargs=encode_kwargs  # Pass the encoding options
             )
 
-            # Vector DB
-            vectorstore = FAISS.from_documents(texts, embeddings)
-
+            # # Vector DB
+            # vectorstore = FAISS.from_documents(texts, embeddings)
+            #
             # template = """
             # 당신의 임무는 user가 원활하게 여행을 계획하고 마칠 수 있도록 돕는 것입니다.
             # 무조건 한국어로 답하십시오.
