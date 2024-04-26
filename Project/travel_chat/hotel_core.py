@@ -27,11 +27,11 @@ class SearchTool_hotel(BaseTool):
     args_schema: Type[BaseModel] = schema_hotel
 
     @tool
-    def _run(self, args: schema_hotel):
+    def _run(self, destination: str, IN: str, OUT: str, person: int, rooms: int):
         """
             useful when you need to search hotel
             """
-        return main(args.destination, args.IN, args.OUT, args.person, args.rooms)
+        return main(destination, IN, OUT, person, rooms)
 
     def _arun(self, args: schema_hotel):
         raise NotImplementedError("error: arun Not Implemented")
