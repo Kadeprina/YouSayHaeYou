@@ -189,11 +189,6 @@ def _handle_error(error) -> str:
     return str(error)[:50]
 
 
-def search_ho(input_text):
-    search_hot = SearchTool_hotel()
-    search = search_hot.run(f"{input_text}")
-    return search
-
 @cl.on_chat_start
 def agent():
     tools = [
@@ -240,7 +235,7 @@ def agent():
         ),
         Tool.from_function(
             name="hotel_search_tool",
-            func=search_ho,
+            func=SearchTool_hotel,
             description="useful when you need to search hotel"
         ),
     ]
