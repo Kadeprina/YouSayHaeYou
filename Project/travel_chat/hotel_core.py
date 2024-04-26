@@ -17,9 +17,9 @@ import streamlit as st
 from webdriver_manager.core.os_manager import ChromeType
 
 
-# chrome_version = "124.0.6367.91"  # Specify the version you want
-# service = Service(ChromeDriverManager(driver_version=chrome_version).install())
-# driver = webdriver.Chrome(service=service)
+chrome_version = "124.0.6367.91"  # Specify the version you want
+service = Service(ChromeDriverManager(driver_version=chrome_version).install())
+driver = webdriver.Chrome(service=service)
 
 # @st.cache_resource
 # def get_driver():
@@ -38,27 +38,6 @@ from webdriver_manager.core.os_manager import ChromeType
 # driver.get("http://example.com")
 
 # st.code(driver.page_source)
-
-def get_latest_release_version(self):
-        determined_browser_version = self.get_browser_version_from_os()
-        log(f"Get LATEST {self._name} version for {self._browser_type}")
-        if determined_browser_version is not None and version.parse(determined_browser_version) >= version.parse("115"):
-            url = "https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build.json"
-            response = self._http_client.get(url)
-            response_dict = json.loads(response.text)
-            determined_browser_version = response_dict.get("builds").get(determined_browser_version).get("version")
-            return determined_browser_version
-        # Remove the build version (the last segment) from determined_browser_version for version < 113
-        determined_browser_version = ".".join(determined_browser_version.split(".")[:3])
-        latest_release_url = (
-            self._latest_release_url
-            if (determined_browser_version is None)
-            else f"{self._latest_release_url}_{determined_browser_version}"
-        )
-        resp = self._http_client.get(url=latest_release_url)
-        return resp.text.rstrip()
-
-st.write(get_latest_release_version())
 
 
 class schema_hotel(BaseModel):
