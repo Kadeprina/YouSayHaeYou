@@ -17,9 +17,9 @@ import streamlit as st
 from webdriver_manager.core.os_manager import ChromeType
 
 
-# chrome_version = "124.0.6367.91"  # Specify the version you want
-# service = Service(ChromeDriverManager(driver_version=chrome_version).install())
-# driver = webdriver.Chrome(service=service)
+chrome_version = "124.0.6367.91"  # Specify the version you want
+service = Service(ChromeDriverManager(driver_version=chrome_version).install())
+driver = webdriver.Chrome(service=service)
 
 # @st.cache_resource
 # def get_driver():
