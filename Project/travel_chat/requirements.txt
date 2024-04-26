@@ -22,5 +22,5 @@ email_validator==2.1.1
 langchainhub==0.1.15
 requests-toolbelt==1.0.0
 selenium==4.8.0
-seleniumbase
+seleniumbase==4.23.7
 webdriver-manager==3.8.5
