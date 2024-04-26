@@ -33,7 +33,7 @@ class SearchTool_hotel():
         OUT = matches[2]
         person = matches[3]
         rooms = matches[4]
-        return main(destination, IN, OUT, person, rooms)
+        return main(destination=destination, IN=IN, OUT=OUT, person=person, rooms=rooms)
 
     def _arun(self, destination, IN, OUT, person, rooms):
         raise NotImplementedError("error: arun Not Implemented")
