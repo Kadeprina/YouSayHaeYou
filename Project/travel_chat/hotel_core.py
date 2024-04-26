@@ -21,11 +21,8 @@ class schema_hotel(BaseModel):
     rooms: int = Field(..., description="It is how many rooms to reserve.")
 
 
-@tool
 class SearchTool_hotel(BaseTool):
-    """
-    useful when you need to search hotel
-    """
+
     name = "hotel_search_tool"
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
@@ -83,8 +80,11 @@ def extract_numeric_price(price_string):
     numeric_price = re.sub(r'[^0-9]', '', price_string)
     return numeric_price
 
-
+@tool
 def main(destination, IN, OUT, person, rooms):
+    """
+    useful when you need to search hotel
+    """
     base_url = "https://kr.hotels.com/Hotel-Search?"
 
     # 입력값
