@@ -1,28 +1,6 @@
-import streamlit as st
-with st.echo():
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.chrome.service import Service
-    from webdriver_manager.chrome import ChromeDriverManager
-    from webdriver_manager.core.os_manager import ChromeType
-
-    @st.cache_resource
-    def get_driver():
-        return webdriver.Chrome(
-            service=Service(
-                ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
-            ),
-            options=options,
-        )
-
-    options = Options()
-    options.add_argument("--disable-gpu")
-    options.add_argument("--headless")
-
-    driver = get_driver()
-    driver.get("http://example.com")
-
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+
 from selenium.webdriver.common.by import By
 from urllib.parse import urlencode
 from selenium.webdriver.chrome.options import Options
@@ -34,6 +12,10 @@ from typing import Type
 
 from pydantic.v1 import BaseModel, Field
 from langchain.tools import BaseTool, StructuredTool, tool
+
+
+chrome_version = "124.0.0.0"  # Specify the version you want
+driver = webdriver.Chrome(executable_path=ChromeDriverManager(version=chrome_version).install())
 
 
 class schema_hotel(BaseModel):
