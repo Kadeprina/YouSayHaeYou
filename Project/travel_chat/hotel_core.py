@@ -26,17 +26,22 @@ class SearchTool_hotel():
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
-    def _run(self, input_string):
-        matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input_string)
-        destination = matches[0]
-        IN = matches[1]
-        OUT = matches[2]
-        person = matches[3]
-        rooms = matches[4]
-        return main(destination=destination, IN=IN, OUT=OUT, person=person, rooms=rooms)
+    def _run(self, destination, IN, OUT, person, rooms):
+        return main(destination, IN, OUT, person, rooms)
 
     def _arun(self, destination, IN, OUT, person, rooms):
         raise NotImplementedError("error: arun Not Implemented")
+    
+    
+@tool   
+def input_parser(input_text):
+    matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input_string)
+    destination = matches[0]
+    IN = matches[1]
+    OUT = matches[2]
+    person = matches[3]
+    rooms = matches[4]
+    return _run(destination, IN, OUT, person, rooms)
 
 
 # 함수 정의
@@ -86,7 +91,6 @@ def extract_numeric_price(price_string):
     return numeric_price
 
 
-@tool
 def main(destination, IN, OUT, person, rooms):
     """
     useful when you need to search hotel
