@@ -182,9 +182,9 @@ def search_general(input_text):
     return search
 
 
-def search_hot(input_text):
+def search_hot(destination, IN, OUT, person, rooms):
     hot = SearchTool_hotel()
-    search = hot.run(f"{input_text}")
+    search = hot.run(f"{destination, IN, OUT, person, rooms}")
     return search
 
 
