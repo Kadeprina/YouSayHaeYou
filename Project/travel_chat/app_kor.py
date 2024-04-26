@@ -245,8 +245,6 @@ def main():
             'type': 'Type'
         })
 
-        if st.button(f"업로드"):
-            data_core.database_save(df_place_rename)
 
         def total_map():
             type_colour = {'Hotel': 'blue', 'Restaurant': 'green', 'Tourist': 'orange'}
@@ -269,6 +267,11 @@ def main():
         def database():
             st.dataframe(df_place_rename)
             total_map()
+            if st.button(f"업로드"):
+                data_core.database_save(df_place_rename)
+            country = st.text_input(f"삭제할 나라를 입력해주세요.", placeholder="나라명 또는 주소로 삭제 가능")
+            if st.button(f"삭제"):
+                data_core.database_delete_with_country(country)
 
         def route():
             st.header(f'길 찾기 🗺️')
