@@ -3,6 +3,7 @@ import asyncio
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
+from firebase_admin import auth
 import streamlit as st
 import pandas as pd
 import json
@@ -15,7 +16,6 @@ from streamlit_folium import folium_static
 
 import chatbot_core
 import route_core
-from firebase_admin import auth
 import auth_core
 import data_core
 
