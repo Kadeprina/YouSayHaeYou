@@ -168,11 +168,27 @@ def main(memory):
                 st.error("삭제 실패: ", e)
 
 def database_save(df):
-    df.to_json("data.json", orient='records')
-    with open("data.json") as f:
-        data = json.load(f)
+    # df.to_json("data.json", orient='records')
+    # with open("data.json") as f:
+    #     data = json.load(f)
+    #
+    # for document_data in data:
+    #     doc_ref = db.collection("city").document()
+    #     doc_ref.set(document_data)
+    #     st.success(f'Document {doc_ref.id} 업로드 완료')
 
-    for document_data in data:
-        doc_ref = db.collection("city").document()
-        doc_ref.set(document_data)
-        st.success(f'Document {doc_ref.id} 업로드 완료')
+    for index, row in df.iterrows():
+        query = db.collection("city").where("Name", "==", row["Name"]).limit(1).get()
+        existing_docs = [doc for doc in query]
+        if not existing_docs:
+            doc_ref = db.collection("city").document()
+            doc_ref.set(row.to_dict())
+            st.success(f'Document {doc_ref.id} 업로드 완료')
+        else:
+            st.warning(f'{row["Name"]} 문서가 이미 존재합니다. 무시합니다.')
+
+
+def database_delete_with_country(country):
+    query = db.collection("city").where("Address", "array_contains", country).stream()
+    for doc in query:
+        doc.reference.delete()
