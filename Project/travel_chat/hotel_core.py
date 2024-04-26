@@ -26,8 +26,8 @@ class SearchTool_hotel():
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
-    def _run(self, input):
-        matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input)
+    def _run(self, input_string):
+        matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input_string)
         destination = matches[0]
         IN = matches[1]
         OUT = matches[2]
