@@ -21,6 +21,7 @@ import os
 import chainlit as cl
 import streamlit as st
 
+from hotel_core import SearchTool_hotel
 from chatbot_add_agent import all_in_1_agent, sms_or_email
 from datetime import datetime
 
@@ -202,11 +203,11 @@ def agent():
             func=search_online,
             description="useful for when you need to answer trip plan questions"
         ),
-        Tool(
-            name="Search hotel",
-            func=search_hotel,
-            description="useful for when you need to answer hotel questions"
-        ),
+        # Tool(
+        #     name="Search hotel",
+        #     func=search_hotel,
+        #     description="useful for when you need to answer hotel questions"
+        # ),
         # Tool(
         #     name="Search flight",
         #     func=search_flight,
@@ -232,6 +233,7 @@ def agent():
             func=lambda x: sms_or_email().invoke({"input": x}),
             description="Send Email via Infobip. If you need to send email, use Send email",
         ),
+        SearchTool_hotel()
     ]
 
     prompt = CustomPromptTemplate(
@@ -257,14 +259,15 @@ def agent():
     llm_chain = LLMChain(llm=llm, prompt=prompt)
 
     prompt_for_amadeus1 = hub.pull("hwchase17/react-json")
-    prompt_for_amadeus2 = """"
+    prompt_for_amadeus2 = """
     Here is instructions to use "tool":
-    departureDateTimeEarliest" and "departureDateTimeEarliest" MUST be the same date.
+    "departureDateTimeEarliest" and "departureDateTimeEarliest" MUST be the same date.
     You can only find one day's worth at a time.
     If you want to find flights for a multiple days, you have to use the "tool" N times for that period.
     If you're trying to search for round-trip flights, call this function for the outbound flight first, and then call again for the return flight.
     If there is no specific input for the year, it defaults to 2024.
     The currency must be converted to Korean Won before Final Answer."""
+
     agent2 = create_react_agent(
         llm,
         tool_amadeus,
