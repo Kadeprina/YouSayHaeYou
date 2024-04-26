@@ -19,6 +19,12 @@ from langchain.tools import BaseTool, StructuredTool, tool
 # service = Service(ChromeDriverManager(driver_version=chrome_version).install())
 # driver = webdriver.Chrome(service=service)
 
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-gpu")
+
 
 class schema_hotel(BaseModel):
     """Inputs for function"""
