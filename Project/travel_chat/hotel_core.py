@@ -28,6 +28,7 @@ class SearchTool_hotel():
 
     def _run(self, query):
         if "Action Input" in query:
+            print("!!!!!!!!!!!!!!!!!!!!!!!!")
             data = json.loads(query)
             destination = data["location"]
             IN = data["check_in"]
