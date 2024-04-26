@@ -14,35 +14,10 @@ from typing import Type
 from pydantic.v1 import BaseModel, Field
 from langchain.tools import BaseTool, StructuredTool, tool
 
-import streamlit as st
 
-
-chrome_version = "114.0.5735.90"  # Specify the version you want
+# chrome_version = "114.0.5735.90"  # Specify the version you want
 # service = Service(ChromeDriverManager(driver_version=chrome_version).install())
 # driver = webdriver.Chrome(service=service)
-
-with st.echo():
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.chrome.service import Service
-    from webdriver_manager.chrome import ChromeDriverManager
-    from webdriver_manager.core.os_manager import ChromeType
-
-    @st.cache_resource
-    def get_driver():
-        return webdriver.Chrome(
-            service=Service(
-                ChromeDriverManager(driver_version=chrome_version).install()
-            ),
-            options=options,
-        )
-
-    options = Options()
-    options.add_argument("--disable-gpu")
-    options.add_argument("--headless")
-
-    driver = get_driver()
-    driver.get("http://example.com")
 
 
 class schema_hotel(BaseModel):
