@@ -9,9 +9,7 @@ import re
 from typing import Type
 
 from pydantic import BaseModel, Field
-from langchain.tools import BaseTool
-from langchain.chat_models import ChatOpenAI
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.tools import BaseTool, StructuredTool, tool
 
 
 class schema_hotel(BaseModel):
@@ -28,6 +26,7 @@ class SearchTool_hotel(BaseTool):
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
+    @tool
     def _run(self, args: schema_hotel):
         return main(args.destination, args.IN, args.OUT, args.person, args.rooms)
 
