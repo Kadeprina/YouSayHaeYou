@@ -26,7 +26,13 @@ class SearchTool_hotel():
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
-    def _run(self, destination, IN, OUT, person, rooms):
+    def _run(self, input):
+        matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input)
+        destination = matches[0]
+        IN = matches[1]
+        OUT = matches[2]
+        person = matches[3]
+        rooms = matches[4]
         return main(destination, IN, OUT, person, rooms)
 
     def _arun(self, args: schema_hotel):
