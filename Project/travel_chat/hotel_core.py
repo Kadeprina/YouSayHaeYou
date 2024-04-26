@@ -28,10 +28,10 @@ class SearchTool_hotel(BaseTool):
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
-    def _run(self, destination: str, IN: str, OUT: str, person: int, rooms: int):
-        return main(destination, IN, OUT, person, rooms)
+    def _run(self, args: schema_hotel):
+        return main(args.destination, args.IN, args.OUT, args.person, args.rooms)
 
-    def _arun(self, destination: str, IN: str, OUT: str, person: int, rooms: int):
+    def _arun(self, args: schema_hotel):
         raise NotImplementedError("error: arun Not Implemented")
 
 
