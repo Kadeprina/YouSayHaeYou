@@ -188,6 +188,7 @@ memory = ConversationBufferWindowMemory(k=15)
 def _handle_error(error) -> str:
     return str(error)[:50]
 
+search_ho = SearchTool_hotel()
 
 @cl.on_chat_start
 def agent():
@@ -235,7 +236,7 @@ def agent():
         ),
         Tool.from_function(
             name="hotel_search_tool",
-            func=SearchTool_hotel(),
+            func=search_ho.run(),
             description="useful when you need to search hotel"
         ),
     ]
