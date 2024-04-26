@@ -26,18 +26,8 @@ class SearchTool_hotel():
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
-    def _run(self, query):
-        if "Action Input" in query:
-            print("!!!!!!!!!!!!!!!!!!!!!!!!")
-            data = json.loads(query)
-            destination = data["location"]
-            IN = data["check_in"]
-            OUT = data["check_out"]
-            person = data["guests"]
-            rooms = data["room"]
-            return main(destination, IN, OUT, person, rooms)
-        else:
-            return f"cannot parse input"
+    def _run(self, destination, IN, OUT, person, rooms):
+        return main(destination, IN, OUT, person, rooms)
 
     def _arun(self, args: schema_hotel):
         raise NotImplementedError("error: arun Not Implemented")
@@ -94,6 +84,12 @@ def extract_numeric_price(price_string):
 def main(destination, IN, OUT, person, rooms):
     """
     useful when you need to search hotel
+    You need to give query like this "destination, IN, OUT, person, rooms"
+    destination: The place where user will stay.
+    IN: It is your check-in date, It has to be like this: 2024-05-04")
+    OUT: It is your check-out date, It has to be like this: 2024-05-05")
+    person: It is how many people will stay.")
+    rooms: It is how many rooms to reserve, Default is 1.
     """
     base_url = "https://kr.hotels.com/Hotel-Search?"
 
