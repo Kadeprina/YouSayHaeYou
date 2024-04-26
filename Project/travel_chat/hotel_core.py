@@ -21,16 +21,16 @@ class schema_hotel(BaseModel):
     rooms: int = Field(..., description="It is how many rooms to reserve.")
 
 
+@tool
 class SearchTool_hotel(BaseTool):
+    """
+    useful when you need to search hotel
+    """
     name = "hotel_search_tool"
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
 
-    @tool
     def _run(self, destination: str, IN: str, OUT: str, person: int, rooms: int):
-        """
-            useful when you need to search hotel
-            """
         return main(destination, IN, OUT, person, rooms)
 
     def _arun(self, args: schema_hotel):
