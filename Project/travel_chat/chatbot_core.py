@@ -21,7 +21,7 @@ import os
 import chainlit as cl
 import streamlit as st
 
-from hotel_core import SearchTool_hotel
+from hotel_core import input_parser
 from chatbot_add_agent import all_in_1_agent, sms_or_email
 from datetime import datetime
 
@@ -192,8 +192,7 @@ def search_general(input_text):
 
 
 def search_hot(input_text):
-    hot = SearchTool_hotel()
-    search = hot._run(f"{input_text}")
+    search = input_parser(f"{input_text}")
     return search
 
 
