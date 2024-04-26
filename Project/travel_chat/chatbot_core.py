@@ -233,7 +233,11 @@ def agent():
             func=lambda x: sms_or_email().invoke({"input": x}),
             description="Send Email via Infobip. If you need to send email, use Send email",
         ),
-        SearchTool_hotel()
+        Tool.from_function(
+            name="hotel_search_tool",
+            func=SearchTool_hotel(),
+            description="useful when you need to search hotel"
+        ),
     ]
 
     prompt = CustomPromptTemplate(
