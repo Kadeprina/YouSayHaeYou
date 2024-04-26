@@ -87,17 +87,6 @@ def save_chat_message():
         db.collection("chats").document(st.session_state["name"] + str('{:02d}'.format(i))).set(chat_data)
 
 
-# def imsi():
-#     st.title("과거 채팅 기록 불러오기")
-#
-#     chat_history = load_chat_history()
-#
-#     # 과거 채팅 기록 출력
-#     st.write("과거 채팅 기록:")
-#     for chat in chat_history:
-#         st.write(f"{chat['timestamp']} - {chat['user']}: {chat['message']}")
-
-
 def delete_chat_message(memory):
     collection_ref = db.collection("chats")
     query = collection_ref.where(filter=FieldFilter("user_name", "==", st.session_state["name"]))
@@ -113,20 +102,6 @@ def delete_chat_message(memory):
 
     st.session_state["messages"] = []
     memory.aclear()
-
-
-# def save_button(email, uid):
-#     st.title("채팅 기록 저장 및 불러오기")
-#
-#     message = st.text_area("메시지를 입력하세요:")
-#
-#     # '전송' 버튼 클릭 시 채팅 저장
-#     if st.button("저장"):
-#         if uid.strip() != "" and message.strip() != "":
-#             save_chat_message(uid, message)
-#             st.success("채팅이 저장되었습니다!")
-#         else:
-#             st.error("사용자 UID 또는 메시지가 비어있습니다.")
 
 
 def main(memory):
