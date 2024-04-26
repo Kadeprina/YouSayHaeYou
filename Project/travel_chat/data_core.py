@@ -167,16 +167,8 @@ def main(memory):
             except Exception as e:
                 st.error("삭제 실패: ", e)
 
-def database_save(df):
-    # df.to_json("data.json", orient='records')
-    # with open("data.json") as f:
-    #     data = json.load(f)
-    #
-    # for document_data in data:
-    #     doc_ref = db.collection("city").document()
-    #     doc_ref.set(document_data)
-    #     st.success(f'Document {doc_ref.id} 업로드 완료')
 
+def database_save(df):
     for index, row in df.iterrows():
         query = db.collection("city").where("Name", "==", row["Name"]).limit(1).get()
         existing_docs = [doc for doc in query]
@@ -192,3 +184,4 @@ def database_delete_with_country(country):
     query = db.collection("city").where("Address", "<", country + u'\uf8ff').stream()
     for doc in query:
         doc.reference.delete()
+        st.success(f'Document {doc.id} 삭제 완료')
