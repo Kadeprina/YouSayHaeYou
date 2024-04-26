@@ -17,7 +17,7 @@ from langchain.tools import BaseTool, StructuredTool, tool
 import streamlit as st
 
 
-# chrome_version = "114.0.5735.90"  # Specify the version you want
+chrome_version = "114.0.5735.90"  # Specify the version you want
 # service = Service(ChromeDriverManager(driver_version=chrome_version).install())
 # driver = webdriver.Chrome(service=service)
 
