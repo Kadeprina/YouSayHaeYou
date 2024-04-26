@@ -182,6 +182,12 @@ def search_general(input_text):
     return search
 
 
+def search_hot(input_text):
+    hot = SearchTool_hotel()
+    search = hot.run(f"{input_text}")
+    return search
+
+
 memory = ConversationBufferWindowMemory(k=15)
 
 
@@ -235,7 +241,7 @@ def agent():
         ),
         Tool.from_function(
             name="hotel_search_tool",
-            func=SearchTool_hotel,
+            func=search_hot,
             description="useful when you need to search hotel"
         ),
     ]
