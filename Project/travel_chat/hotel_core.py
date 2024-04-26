@@ -22,6 +22,9 @@ class schema_hotel(BaseModel):
 
 @tool
 class SearchTool_hotel(BaseTool):
+    """
+    useful when you need to search hotel
+    """
     name = "hotel_search_tool"
     description = "useful when you need to search hotel"
     args_schema: Type[BaseModel] = schema_hotel
