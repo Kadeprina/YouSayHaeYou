@@ -4,7 +4,6 @@ import shutil
 import subprocess
 import time
 
-import countryflag
 import requests
 import streamlit as st
 from selenium import webdriver
@@ -36,11 +35,6 @@ def get_proxyscrape_list(country: str='FR') -> Tuple[bool, List|str]:
         return False, str(e)
     else:
         return True, response
-
-
-@st.cache_resource(show_spinner=False)
-def get_flag(country: str):
-    return countryflag.getflag([country])
 
 
 @st.cache_resource(show_spinner=False)
@@ -200,7 +194,6 @@ if __name__ == "__main__":
                         st.error(st.session_state.proxies, icon='🔥')
                 if st.session_state.proxies:
                     st.session_state.proxy = st.selectbox(label='Select a Socks5 proxy from the list', options=st.session_state.proxies, index=0)
-                    st.info(body=f'{st.session_state.proxy} {get_flag(selected_country)}', icon='😎')
             else:
                 st.session_state.proxy = None
                 st.session_state.proxies = None
