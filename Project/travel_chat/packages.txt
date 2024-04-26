@@ -1,2 +1,3 @@
+update
 chromium
 google-chrome-stable
