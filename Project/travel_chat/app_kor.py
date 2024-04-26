@@ -18,20 +18,6 @@ import route_core
 import firebase_admin
 from firebase_admin import auth
 from collections import OrderedDict
-import auth_core
-import data_core
-
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import DataFrameLoader
-from langchain.agents import tool
-import datetime
-
-# Load environment variables from .env file
-load_dotenv()
-
 if not firebase_admin._apps:
     cred_json = OrderedDict()
     cred_json["type"] = st.secrets["type"]  # 이렇게 값을 숨겨주는 게 좋다.
@@ -50,6 +36,19 @@ if not firebase_admin._apps:
     js_dict = json.loads(js)
     cred = firebase_admin.credentials.Certificate(js_dict)
     firebase_admin.initialize_app(cred)
+import auth_core
+import data_core
+
+from langchain.chat_models import ChatOpenAI
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores import FAISS
+from langchain.document_loaders import DataFrameLoader
+from langchain.agents import tool
+import datetime
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 # Retrieve the API key from the environment variable
