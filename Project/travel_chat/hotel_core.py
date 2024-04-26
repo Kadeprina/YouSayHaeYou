@@ -3,8 +3,8 @@ import os, sys
 
 @st.experimental_singleton
 def installff():
-  os.system('sbase install geckodriver')
-  os.system('ln -s /home/appuser/venv/lib/python3.7/site-packages/seleniumbase/drivers/geckodriver /home/appuser/venv/bin/geckodriver')
+  os.system('sbase install chromedriver')
+  os.system('ln -s /home/appuser/venv/lib/python3.9/site-packages/seleniumbase/drivers/chromedriver /home/appuser/venv/bin/chromedriver')
 
 _ = installff()
 
