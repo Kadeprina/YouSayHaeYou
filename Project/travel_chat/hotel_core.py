@@ -38,7 +38,7 @@ def input_parser(input_text):
     """
     useful when you need to search hotel
     """
-    matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input_string)
+    matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input_text)
     destination = matches[0]
     IN = matches[1]
     OUT = matches[2]
