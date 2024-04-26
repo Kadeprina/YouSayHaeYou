@@ -35,6 +35,9 @@ class SearchTool_hotel():
     
 @tool   
 def input_parser(input_text):
+    """
+    useful when you need to search hotel
+    """
     matches = re.findall(r'([A-Za-z]+|[0-9-]+|\d)', input_string)
     destination = matches[0]
     IN = matches[1]
@@ -92,9 +95,6 @@ def extract_numeric_price(price_string):
 
 
 def main(destination, IN, OUT, person, rooms):
-    """
-    useful when you need to search hotel
-    """
     base_url = "https://kr.hotels.com/Hotel-Search?"
 
     # 입력값
