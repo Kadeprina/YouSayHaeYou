@@ -35,7 +35,7 @@ class SearchTool_hotel():
         rooms = matches[4]
         return main(destination, IN, OUT, person, rooms)
 
-    def _arun(self, args: schema_hotel):
+    def _arun(self, destination, IN, OUT, person, rooms):
         raise NotImplementedError("error: arun Not Implemented")
 
 
