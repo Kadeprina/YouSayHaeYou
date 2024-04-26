@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 from selenium.webdriver.common.by import By
@@ -15,7 +16,8 @@ from langchain.tools import BaseTool, StructuredTool, tool
 
 
 chrome_version = "114.0.5735.90"  # Specify the version you want
-driver = webdriver.Chrome(executable_path=ChromeDriverManager(driver_version=chrome_version).install())
+service = Service(executable_path=ChromeDriverManager(driver_version=chrome_version))
+driver = webdriver.Chrome(service=service).install())
 
 
 class schema_hotel(BaseModel):
