@@ -84,12 +84,6 @@ def extract_numeric_price(price_string):
 def main(destination, IN, OUT, person, rooms):
     """
     useful when you need to search hotel
-    You need to give query like this "destination, IN, OUT, person, rooms"
-    destination: The place where user will stay.
-    IN: It is your check-in date, It has to be like this: 2024-05-04")
-    OUT: It is your check-out date, It has to be like this: 2024-05-05")
-    person: It is how many people will stay.")
-    rooms: It is how many rooms to reserve, Default is 1.
     """
     base_url = "https://kr.hotels.com/Hotel-Search?"
 
